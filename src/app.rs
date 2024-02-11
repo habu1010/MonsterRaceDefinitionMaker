@@ -167,87 +167,81 @@ impl MonsterRaceDefinitionMakerApp {
         });
     }
 
-    fn update_basic_info(&mut self, ctx: &egui::Context) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            egui::Grid::new("name field")
-                .num_columns(2)
-                .striped(true)
-                .show(ui, |ui| {
-                    ui.label("日本語名:");
-                    egui::TextEdit::singleline(&mut self.monster_race.name)
-                        .desired_width(f32::INFINITY)
-                        .show(ui);
-                    ui.end_row();
-                    ui.label("英語名:");
-                    egui::TextEdit::singleline(&mut self.monster_race.english_name)
-                        .desired_width(f32::INFINITY)
-                        .show(ui);
-                    ui.end_row();
-                });
-
-            ui.horizontal_top(|ui| {
-                self.draw_symbol_field(ui);
-                self.draw_info_field(ui);
-                self.draw_more_info_field(ui);
-                self.draw_sex_info_field(ui);
+    fn update_basic_info(&mut self, ui: &mut egui::Ui) {
+        egui::Grid::new("name field")
+            .num_columns(2)
+            .striped(true)
+            .show(ui, |ui| {
+                ui.label("日本語名:");
+                egui::TextEdit::singleline(&mut self.monster_race.name)
+                    .desired_width(f32::INFINITY)
+                    .show(ui);
+                ui.end_row();
+                ui.label("英語名:");
+                egui::TextEdit::singleline(&mut self.monster_race.english_name)
+                    .desired_width(f32::INFINITY)
+                    .show(ui);
+                ui.end_row();
             });
+
+        ui.horizontal_top(|ui| {
+            self.draw_symbol_field(ui);
+            self.draw_info_field(ui);
+            self.draw_more_info_field(ui);
+            self.draw_sex_info_field(ui);
         });
     }
 
-    fn update_blows_info(&mut self, ctx: &egui::Context) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            egui::Grid::new("blows field")
-                .num_columns(2)
-                .striped(true)
-                .show(ui, |ui| {
-                    for (i, blow) in self.monster_race.blows.iter_mut().enumerate() {
-                        ui.label(&format!("攻撃{}:", i + 1));
-                        ui.horizontal_top(|ui| {
-                            combo_box_from_frag_tables(
-                                ui,
-                                &format!("blow method {i}"),
-                                &mut blow.method,
-                                &monster::MONSTER_BLOW_METHOD_TABLES,
+    fn update_blows_info(&mut self, ui: &mut egui::Ui) {
+        egui::Grid::new("blows field")
+            .num_columns(2)
+            .striped(true)
+            .show(ui, |ui| {
+                for (i, blow) in self.monster_race.blows.iter_mut().enumerate() {
+                    ui.label(&format!("攻撃{}:", i + 1));
+                    ui.horizontal_top(|ui| {
+                        combo_box_from_frag_tables(
+                            ui,
+                            &format!("blow method {i}"),
+                            &mut blow.method,
+                            &monster::MONSTER_BLOW_METHOD_TABLES,
+                        );
+                        combo_box_from_frag_tables(
+                            ui,
+                            &format!("blow effect {i}"),
+                            &mut blow.effect,
+                            &monster::MONSTER_BLOW_EFFECT_TABLES,
+                        );
+                    });
+                    ui.end_row();
+                    ui.label("");
+                    ui.horizontal_top(|ui| {
+                        ui.checkbox(&mut blow.has_damage, "ダメージ");
+                        if blow.has_damage {
+                            ui.add(
+                                egui::DragValue::new(&mut blow.damage_dice.num)
+                                    .clamp_range(1..=1000),
                             );
-                            combo_box_from_frag_tables(
-                                ui,
-                                &format!("blow effect {i}"),
-                                &mut blow.effect,
-                                &monster::MONSTER_BLOW_EFFECT_TABLES,
+                            ui.label("d");
+                            ui.add(
+                                egui::DragValue::new(&mut blow.damage_dice.sides)
+                                    .clamp_range(1..=1000),
                             );
-                        });
-                        ui.end_row();
-                        ui.label("");
-                        ui.horizontal_top(|ui| {
-                            ui.checkbox(&mut blow.has_damage, "ダメージ");
-                            if blow.has_damage {
-                                ui.add(
-                                    egui::DragValue::new(&mut blow.damage_dice.num)
-                                        .clamp_range(1..=1000),
-                                );
-                                ui.label("d");
-                                ui.add(
-                                    egui::DragValue::new(&mut blow.damage_dice.sides)
-                                        .clamp_range(1..=1000),
-                                );
-                            }
-                        });
-                        ui.end_row();
-                    }
-                });
-        });
+                        }
+                    });
+                    ui.end_row();
+                }
+            });
     }
 
-    fn update_export(&mut self, ctx: &egui::Context) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            let mut monster_race_definition = self.monster_race.to_monster_race_definition();
+    fn update_export(&mut self, ui: &mut egui::Ui) {
+        let mut monster_race_definition = self.monster_race.to_monster_race_definition();
 
-            if ui.button("クリップボードにコピー").clicked() {
-                ui.output_mut(|o| o.copied_text = monster_race_definition.clone());
-            }
+        if ui.button("クリップボードにコピー").clicked() {
+            ui.output_mut(|o| o.copied_text = monster_race_definition.clone());
+        }
 
-            egui::TextEdit::multiline(&mut monster_race_definition).show(ui);
-        });
+        egui::TextEdit::multiline(&mut monster_race_definition).show(ui);
     }
 }
 
@@ -295,11 +289,11 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             });
         });
 
-        match self.selected_side_panel_item {
-            MonsterRaceBasicInfo => self.update_basic_info(ctx),
-            MonsterRaceBlows => self.update_blows_info(ctx),
-            Export => self.update_export(ctx),
-        }
+        egui::CentralPanel::default().show(ctx, |ui| match self.selected_side_panel_item {
+            MonsterRaceBasicInfo => self.update_basic_info(ui),
+            MonsterRaceBlows => self.update_blows_info(ui),
+            Export => self.update_export(ui),
+        });
     }
 }
 
