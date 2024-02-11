@@ -1,3 +1,5 @@
+use std::collections::{BTreeMap, BTreeSet};
+
 use crate::{
     color,
     monster::{self, MonsterRaceFlag},
@@ -25,6 +27,8 @@ impl Default for MonsterRaceDefinitionMakerApp {
 enum SidePanelItem {
     MonsterRaceBasicInfo,
     MonsterRaceBlows,
+    MonsterRaceSkills1,
+    MonsterRaceSkills2,
     Export,
 }
 
@@ -234,6 +238,64 @@ impl MonsterRaceDefinitionMakerApp {
             });
     }
 
+    fn update_skills_info1(&mut self, ui: &mut egui::Ui) {
+        self.update_skill_use_prob(ui);
+        ui.horizontal(|ui| {
+            check_box_list_from_skill_tables(
+                ui,
+                "ブレス",
+                &mut self.monster_race.skill.breathes,
+                &monster::MONSTER_SKILL_BREATH_TABLES,
+            );
+            check_box_list_from_skill_tables(
+                ui,
+                "ボール",
+                &mut self.monster_race.skill.balls,
+                &monster::MONSTER_SKILL_BALL_TABLES,
+            );
+            check_box_list_from_skill_tables(
+                ui,
+                "ボルト",
+                &mut self.monster_race.skill.bolts,
+                &monster::MONSTER_SKILL_BOLT_TABLES,
+            );
+        });
+    }
+
+    fn update_skills_info2(&mut self, ui: &mut egui::Ui) {
+        self.update_skill_use_prob(ui);
+        ui.horizontal(|ui| {
+            check_box_list_from_skill_tables(
+                ui,
+                "ダメージ",
+                &mut self.monster_race.skill.damages,
+                &monster::MONSTER_SKILL_DAMAGE_TABLES,
+            );
+            check_box_list_from_skill_tables(
+                ui,
+                "召喚",
+                &mut self.monster_race.skill.summons,
+                &monster::MONSTER_SKILL_SUMMON_TABLES,
+            );
+            check_box_list_from_skill_tables(
+                ui,
+                "その他",
+                &mut self.monster_race.skill.miscs,
+                &monster::MONSTER_SKILL_MISC_TABLES,
+            );
+        });
+    }
+
+    fn update_skill_use_prob(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.label("使用率: 1_IN_");
+            ui.add(
+                egui::DragValue::new(&mut self.monster_race.skill_use_prob_div)
+                    .clamp_range(1..=100),
+            );
+        });
+    }
+
     fn update_export(&mut self, ui: &mut egui::Ui) {
         let mut monster_race_definition = self.monster_race.to_monster_race_definition();
 
@@ -284,6 +346,8 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             let side_panel = &mut self.selected_side_panel_item;
             ui.selectable_value(side_panel, MonsterRaceBasicInfo, "基本情報");
             ui.selectable_value(side_panel, MonsterRaceBlows, "近接攻撃");
+            ui.selectable_value(side_panel, MonsterRaceSkills1, "スキル1");
+            ui.selectable_value(side_panel, MonsterRaceSkills2, "スキル2");
             ui.selectable_value(side_panel, Export, "エクスポート");
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
@@ -294,6 +358,8 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
         egui::CentralPanel::default().show(ctx, |ui| match self.selected_side_panel_item {
             MonsterRaceBasicInfo => self.update_basic_info(ui),
             MonsterRaceBlows => self.update_blows_info(ui),
+            MonsterRaceSkills1 => self.update_skills_info1(ui),
+            MonsterRaceSkills2 => self.update_skills_info2(ui),
             Export => self.update_export(ui),
         });
     }
@@ -305,7 +371,7 @@ fn combo_box_from_frag_tables<T>(
     selected: &mut T,
     tables: &[monster::FlagTable<T>],
 ) where
-    T: MonsterRaceFlag,
+    T: MonsterRaceFlag + Copy + Eq,
 {
     egui::ComboBox::from_id_source(id_source)
         .selected_text(selected.description())
@@ -314,4 +380,38 @@ fn combo_box_from_frag_tables<T>(
                 ui.selectable_value(selected, t.flag, t.description);
             }
         });
+}
+
+fn check_box_list_from_skill_tables<T>(
+    ui: &mut egui::Ui,
+    header: &str,
+    skills: &mut BTreeSet<T>,
+    tables: &[monster::FlagTable<T>],
+) where
+    T: MonsterRaceFlag + Copy + Ord,
+{
+    let mut skill_map = tables
+        .iter()
+        .map(|t| (t.flag, skills.contains(&t.flag)))
+        .collect::<BTreeMap<_, _>>();
+    ui.group(|ui| {
+        ui.vertical(|ui| {
+            ui.heading(header);
+            for (flag, selected) in skill_map.iter_mut() {
+                ui.checkbox(selected, flag.description());
+            }
+        });
+    });
+    *skills = skill_map
+        .iter()
+        .filter_map(
+            |(flag, selected)| {
+                if *selected {
+                    Some(*flag)
+                } else {
+                    None
+                }
+            },
+        )
+        .collect();
 }
