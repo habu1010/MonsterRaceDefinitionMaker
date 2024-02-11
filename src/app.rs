@@ -24,6 +24,23 @@ impl TemplateApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // This is also where you can customize the look and feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
+        let mut fonts = egui::FontDefinitions::default();
+        fonts.font_data.insert(
+            String::from("Noto Sans JP"),
+            egui::FontData::from_static(include_bytes!("../assets/NotoSansJP-Regular.ttf")),
+        );
+        fonts
+            .families
+            .get_mut(&egui::FontFamily::Proportional)
+            .unwrap()
+            .insert(0, String::from("Noto Sans JP"));
+        fonts
+            .families
+            .get_mut(&egui::FontFamily::Monospace)
+            .unwrap()
+            .push(String::from("Noto Sans JP"));
+
+        cc.egui_ctx.set_fonts(fonts);
 
         // Load previous app state (if any).
         // Note that you must enable the `persistence` feature for this to work.
