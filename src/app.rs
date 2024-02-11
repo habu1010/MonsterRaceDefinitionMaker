@@ -24,6 +24,7 @@ impl Default for MonsterRaceDefinitionMakerApp {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
 enum SidePanelItem {
     MonsterRaceBasicInfo,
+    MonsterRaceBlows,
     Export,
 }
 
@@ -193,6 +194,50 @@ impl MonsterRaceDefinitionMakerApp {
         });
     }
 
+    fn update_blows_info(&mut self, ctx: &egui::Context) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            egui::Grid::new("blows field")
+                .num_columns(2)
+                .striped(true)
+                .show(ui, |ui| {
+                    for (i, blow) in self.monster_race.blows.iter_mut().enumerate() {
+                        ui.label(&format!("攻撃{}:", i + 1));
+                        ui.horizontal_top(|ui| {
+                            combo_box_from_frag_tables(
+                                ui,
+                                &format!("blow method {i}"),
+                                &mut blow.method,
+                                &monster::MONSTER_BLOW_METHOD_TABLES,
+                            );
+                            combo_box_from_frag_tables(
+                                ui,
+                                &format!("blow effect {i}"),
+                                &mut blow.effect,
+                                &monster::MONSTER_BLOW_EFFECT_TABLES,
+                            );
+                        });
+                        ui.end_row();
+                        ui.label("");
+                        ui.horizontal_top(|ui| {
+                            ui.checkbox(&mut blow.has_damage, "ダメージ");
+                            if blow.has_damage {
+                                ui.add(
+                                    egui::DragValue::new(&mut blow.damage_dice.num)
+                                        .clamp_range(1..=1000),
+                                );
+                                ui.label("d");
+                                ui.add(
+                                    egui::DragValue::new(&mut blow.damage_dice.sides)
+                                        .clamp_range(1..=1000),
+                                );
+                            }
+                        });
+                        ui.end_row();
+                    }
+                });
+        });
+    }
+
     fn update_export(&mut self, ctx: &egui::Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             let mut monster_race_definition = self.monster_race.to_monster_race_definition();
@@ -242,6 +287,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             // The side panel is often a good place for tools and settings.
             let side_panel = &mut self.selected_side_panel_item;
             ui.selectable_value(side_panel, MonsterRaceBasicInfo, "基本情報");
+            ui.selectable_value(side_panel, MonsterRaceBlows, "近接攻撃");
             ui.selectable_value(side_panel, Export, "エクスポート");
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
@@ -251,7 +297,25 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
 
         match self.selected_side_panel_item {
             MonsterRaceBasicInfo => self.update_basic_info(ctx),
+            MonsterRaceBlows => self.update_blows_info(ctx),
             Export => self.update_export(ctx),
         }
     }
+}
+
+fn combo_box_from_frag_tables<T>(
+    ui: &mut egui::Ui,
+    id_source: &str,
+    selected: &mut T,
+    tables: &[monster::FlagTable<T>],
+) where
+    T: MonsterRaceFlag,
+{
+    egui::ComboBox::from_id_source(id_source)
+        .selected_text(selected.description())
+        .show_ui(ui, |ui| {
+            for t in tables {
+                ui.selectable_value(selected, t.flag, t.description);
+            }
+        });
 }
