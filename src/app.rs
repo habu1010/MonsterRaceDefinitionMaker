@@ -241,7 +241,9 @@ impl MonsterRaceDefinitionMakerApp {
             ui.output_mut(|o| o.copied_text = monster_race_definition.clone());
         }
 
-        egui::TextEdit::multiline(&mut monster_race_definition).show(ui);
+        egui::TextEdit::multiline(&mut monster_race_definition)
+            .desired_width(f32::INFINITY)
+            .show(ui);
     }
 }
 
