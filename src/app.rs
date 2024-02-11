@@ -1,22 +1,30 @@
+use crate::{
+    color,
+    monster::{self, MonsterRaceFlag},
+};
+
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct MonsterRaceDefinitionMakerApp {
-    // Example stuff:
-    label: String,
+    selected_side_panel_item: SidePanelItem,
 
-    #[serde(skip)] // This how you opt-out of serialization of a field
-    value: f32,
+    monster_race: monster::MonsterRace,
 }
 
 impl Default for MonsterRaceDefinitionMakerApp {
     fn default() -> Self {
         Self {
-            // Example stuff:
-            label: "Hello World!".to_owned(),
-            value: 2.7,
+            monster_race: monster::MonsterRace::new(),
+            selected_side_panel_item: SidePanelItem::MonsterRaceBasicInfo,
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+enum SidePanelItem {
+    MonsterRaceBasicInfo,
+    Export,
 }
 
 impl MonsterRaceDefinitionMakerApp {
@@ -50,6 +58,152 @@ impl MonsterRaceDefinitionMakerApp {
 
         Default::default()
     }
+
+    fn draw_symbol_field(&mut self, ui: &mut egui::Ui) {
+        ui.group(|ui| {
+            egui::Grid::new("symbol field")
+                .num_columns(2)
+                .striped(true)
+                .show(ui, |ui| {
+                    ui.label("シンボル:");
+                    egui::TextEdit::singleline(&mut self.monster_race.symbol.char)
+                        .desired_width(24.0)
+                        .char_limit(1)
+                        .show(ui);
+                    ui.end_row();
+                    ui.label("色:");
+                    egui::ComboBox::from_id_source("symbol color")
+                        .selected_text(format!("{}", self.monster_race.symbol.color))
+                        .show_ui(ui, |ui| {
+                            for color in color::COLORS {
+                                ui.selectable_value(
+                                    &mut self.monster_race.symbol.color,
+                                    color,
+                                    format!("{}", color),
+                                );
+                            }
+                        });
+                    ui.end_row();
+                    ui.label("見た目:");
+                    ui.label(
+                        egui::RichText::new(&self.monster_race.symbol.char)
+                            .monospace()
+                            .size(24.0)
+                            .background_color(egui::Color32::BLACK)
+                            .color(self.monster_race.symbol.color.to_color32()),
+                    );
+                });
+        });
+    }
+
+    fn draw_info_field(&mut self, ui: &mut egui::Ui) {
+        ui.group(|ui| {
+            egui::Grid::new("I field")
+                .num_columns(2)
+                .striped(true)
+                .show(ui, |ui| {
+                    ui.label("HP:");
+                    ui.horizontal(|ui| {
+                        ui.add(
+                            egui::DragValue::new(&mut self.monster_race.hp.num)
+                                .clamp_range(1..=1000),
+                        );
+                        ui.label("d");
+                        ui.add(
+                            egui::DragValue::new(&mut self.monster_race.hp.sides)
+                                .clamp_range(1..=1000),
+                        );
+                    });
+                    ui.end_row();
+
+                    let mut drag_value_form = |label, value, range| {
+                        ui.label(label);
+                        ui.add(egui::DragValue::new(value).clamp_range(range));
+                        ui.end_row();
+                    };
+                    drag_value_form("加速:", &mut self.monster_race.speed, -100..=100);
+                    drag_value_form("AC:", &mut self.monster_race.ac, 0..=10000);
+                    drag_value_form("感知範囲:", &mut self.monster_race.vision, 1..=255);
+                    drag_value_form("警戒度:", &mut self.monster_race.alertness, 0..=255);
+                });
+        });
+    }
+
+    fn draw_more_info_field(&mut self, ui: &mut egui::Ui) {
+        ui.group(|ui| {
+            egui::Grid::new("W field")
+                .num_columns(2)
+                .striped(true)
+                .show(ui, |ui| {
+                    let mut drag_value_form = |label, value, range| {
+                        ui.label(label);
+                        ui.add(egui::DragValue::new(value).clamp_range(range));
+                        ui.end_row();
+                    };
+
+                    drag_value_form("階層:", &mut self.monster_race.level, 0..=127);
+                    drag_value_form("レア度:", &mut self.monster_race.rarity, 1..=255);
+                    drag_value_form("経験値:", &mut self.monster_race.exp, 0..=1000000);
+                    drag_value_form(
+                        "進化経験値:",
+                        &mut self.monster_race.evolving_exp,
+                        0..=1000000,
+                    );
+                    drag_value_form("進化先:", &mut self.monster_race.evolves_to, 0..=9999);
+                });
+        });
+    }
+
+    fn draw_sex_info_field(&mut self, ui: &mut egui::Ui) {
+        ui.group(|ui| {
+            use monster::MonsterSex::*;
+            ui.vertical(|ui| {
+                ui.label("性別:");
+                for sex in [None, Male, Female] {
+                    ui.radio_value(&mut self.monster_race.sex, sex, sex.description());
+                }
+            });
+        });
+    }
+
+    fn update_basic_info(&mut self, ctx: &egui::Context) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            egui::Grid::new("name field")
+                .num_columns(2)
+                .striped(true)
+                .show(ui, |ui| {
+                    ui.label("日本語名:");
+                    egui::TextEdit::singleline(&mut self.monster_race.name)
+                        .desired_width(f32::INFINITY)
+                        .show(ui);
+                    ui.end_row();
+                    ui.label("英語名:");
+                    egui::TextEdit::singleline(&mut self.monster_race.english_name)
+                        .desired_width(f32::INFINITY)
+                        .show(ui);
+                    ui.end_row();
+                });
+
+            ui.horizontal_top(|ui| {
+                self.draw_symbol_field(ui);
+                self.draw_info_field(ui);
+                self.draw_more_info_field(ui);
+                self.draw_sex_info_field(ui);
+            });
+        });
+    }
+
+    fn update_export(&mut self, ctx: &egui::Context) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            let mut monster_race_definition = self.monster_race.to_monster_race_definition();
+
+            if ui.button("クリップボードにコピー").clicked() {
+                ui.output_mut(|o| o.copied_text = monster_race_definition.clone());
+            }
+
+            egui::TextEdit::multiline(&mut monster_race_definition).show(ui);
+        });
+    }
 }
 
 impl eframe::App for MonsterRaceDefinitionMakerApp {
@@ -82,45 +236,22 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             });
         });
 
-        egui::CentralPanel::default().show(ctx, |ui| {
-            // The central panel the region left after adding TopPanel's and SidePanel's
-            ui.heading("eframe template");
+        use SidePanelItem::*;
 
-            ui.horizontal(|ui| {
-                ui.label("Write something: ");
-                ui.text_edit_singleline(&mut self.label);
-            });
-
-            ui.add(egui::Slider::new(&mut self.value, 0.0..=10.0).text("value"));
-            if ui.button("Increment").clicked() {
-                self.value += 1.0;
-            }
-
-            ui.separator();
-
-            ui.add(egui::github_link_file!(
-                "https://github.com/emilk/eframe_template/blob/master/",
-                "Source code."
-            ));
+        egui::SidePanel::left("side_panel").show(ctx, |ui| {
+            // The side panel is often a good place for tools and settings.
+            let side_panel = &mut self.selected_side_panel_item;
+            ui.selectable_value(side_panel, MonsterRaceBasicInfo, "基本情報");
+            ui.selectable_value(side_panel, Export, "エクスポート");
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
-                powered_by_egui_and_eframe(ui);
                 egui::warn_if_debug_build(ui);
             });
         });
-    }
-}
 
-fn powered_by_egui_and_eframe(ui: &mut egui::Ui) {
-    ui.horizontal(|ui| {
-        ui.spacing_mut().item_spacing.x = 0.0;
-        ui.label("Powered by ");
-        ui.hyperlink_to("egui", "https://github.com/emilk/egui");
-        ui.label(" and ");
-        ui.hyperlink_to(
-            "eframe",
-            "https://github.com/emilk/egui/tree/master/crates/eframe",
-        );
-        ui.label(".");
-    });
+        match self.selected_side_panel_item {
+            MonsterRaceBasicInfo => self.update_basic_info(ctx),
+            Export => self.update_export(ctx),
+        }
+    }
 }
