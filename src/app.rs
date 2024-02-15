@@ -1,8 +1,12 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    rc::Rc,
+};
 
 use crate::{
     color,
     monster::{self, MonsterRaceFlag},
+    search,
 };
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
@@ -12,6 +16,16 @@ pub struct MonsterRaceDefinitionMakerApp {
     selected_side_panel_item: SidePanelItem,
 
     monster_race: monster::MonsterRace,
+
+    #[serde(skip)]
+    search_ctx: SearchCtx,
+}
+
+struct SearchCtx {
+    db: search::MonsterRaceDataBase,
+    results: Vec<Rc<search::MonsterRace>>,
+    query: String,
+    monster_id: u32,
 }
 
 impl Default for MonsterRaceDefinitionMakerApp {
@@ -19,6 +33,7 @@ impl Default for MonsterRaceDefinitionMakerApp {
         Self {
             monster_race: monster::MonsterRace::new(),
             selected_side_panel_item: SidePanelItem::MonsterRaceBasicInfo,
+            search_ctx: SearchCtx::new(),
         }
     }
 }
@@ -29,6 +44,7 @@ enum SidePanelItem {
     MonsterRaceBlows,
     MonsterRaceSkills1,
     MonsterRaceSkills2,
+    MonsterSearch,
     Export,
 }
 
@@ -348,6 +364,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             ui.selectable_value(side_panel, MonsterRaceBlows, "近接攻撃");
             ui.selectable_value(side_panel, MonsterRaceSkills1, "スキル1");
             ui.selectable_value(side_panel, MonsterRaceSkills2, "スキル2");
+            ui.selectable_value(side_panel, MonsterSearch, "モンスター検索");
             ui.selectable_value(side_panel, Export, "エクスポート");
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
@@ -360,7 +377,99 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             MonsterRaceBlows => self.update_blows_info(ui),
             MonsterRaceSkills1 => self.update_skills_info1(ui),
             MonsterRaceSkills2 => self.update_skills_info2(ui),
+            MonsterSearch => self.search_ctx.update(ui),
             Export => self.update_export(ui),
+        });
+    }
+}
+
+impl SearchCtx {
+    fn new() -> Self {
+        Self {
+            db: search::MonsterRaceDataBase::new(),
+            results: Vec::new(),
+            query: String::new(),
+            monster_id: 0,
+        }
+    }
+
+    fn update(&mut self, ui: &mut egui::Ui) {
+        let Self {
+            db,
+            results,
+            query,
+            monster_id,
+        } = self;
+
+        ui.heading("モンスター検索");
+        ui.horizontal(|ui| {
+            if ui
+                .add(
+                    egui::TextEdit::singleline(query)
+                        .desired_width(200.0)
+                        .hint_text("モンスター名の一部を入力"),
+                )
+                .changed()
+            {
+                *results = if query.is_empty() {
+                    Vec::default()
+                } else {
+                    db.search(query)
+                };
+            }
+            ui.label(&format!("検索結果: {}件", results.len()));
+        });
+
+        egui::ScrollArea::vertical()
+            .max_height(150.0)
+            .auto_shrink(false)
+            .show(ui, |ui| {
+                egui::Grid::new("search result grid")
+                    .num_columns(2)
+                    .striped(true)
+                    .show(ui, |ui| {
+                        ui.label("ID");
+                        ui.label("名前");
+                        ui.end_row();
+                        for monster in results {
+                            if ui
+                                .add_sized(
+                                    ui.available_size(),
+                                    egui::Button::new(&monster.id.to_string()),
+                                )
+                                .clicked()
+                            {
+                                *monster_id = monster.id;
+                            }
+                            ui.label(&monster.name);
+                            ui.end_row();
+                        }
+                    });
+            });
+
+        ui.separator();
+
+        ui.horizontal(|ui| {
+            ui.label("ID入力:");
+            ui.add(egui::DragValue::new(monster_id).clamp_range(db.id_range()));
+        });
+
+        let monster = db.get(*monster_id);
+
+        let mut definition = match monster {
+            Ok(ref monster) => monster.definition.as_str().trim_end(),
+            Err(search::SearchError::Preparing) => "データの準備中です",
+            Err(search::SearchError::IdNotFound) => "該当のモンスターIDが見つかりません",
+            Err(search::SearchError::FailedToDownload) => "データのダウンロードに失敗しました",
+        };
+        ui.group(|ui| {
+            egui::ScrollArea::vertical()
+                .auto_shrink(false)
+                .show(ui, |ui| {
+                    egui::TextEdit::multiline(&mut definition)
+                        .desired_width(f32::INFINITY)
+                        .show(ui);
+                });
         });
     }
 }
