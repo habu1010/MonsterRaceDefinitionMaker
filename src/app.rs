@@ -44,6 +44,8 @@ enum SidePanelItem {
     MonsterRaceBlows,
     MonsterRaceSkills1,
     MonsterRaceSkills2,
+    MonsterRaceFlags1,
+    MonsterRaceFlags2,
     MonsterSearch,
     Export,
 }
@@ -257,19 +259,19 @@ impl MonsterRaceDefinitionMakerApp {
     fn update_skills_info1(&mut self, ui: &mut egui::Ui) {
         self.update_skill_use_prob(ui);
         ui.horizontal(|ui| {
-            check_box_list_from_skill_tables(
+            check_box_list_from_flag_tables(
                 ui,
                 "ブレス",
                 &mut self.monster_race.skill.breathes,
                 &monster::MONSTER_SKILL_BREATH_TABLES,
             );
-            check_box_list_from_skill_tables(
+            check_box_list_from_flag_tables(
                 ui,
                 "ボール",
                 &mut self.monster_race.skill.balls,
                 &monster::MONSTER_SKILL_BALL_TABLES,
             );
-            check_box_list_from_skill_tables(
+            check_box_list_from_flag_tables(
                 ui,
                 "ボルト",
                 &mut self.monster_race.skill.bolts,
@@ -281,19 +283,19 @@ impl MonsterRaceDefinitionMakerApp {
     fn update_skills_info2(&mut self, ui: &mut egui::Ui) {
         self.update_skill_use_prob(ui);
         ui.horizontal(|ui| {
-            check_box_list_from_skill_tables(
+            check_box_list_from_flag_tables(
                 ui,
                 "ダメージ",
                 &mut self.monster_race.skill.damages,
                 &monster::MONSTER_SKILL_DAMAGE_TABLES,
             );
-            check_box_list_from_skill_tables(
+            check_box_list_from_flag_tables(
                 ui,
                 "召喚",
                 &mut self.monster_race.skill.summons,
                 &monster::MONSTER_SKILL_SUMMON_TABLES,
             );
-            check_box_list_from_skill_tables(
+            check_box_list_from_flag_tables(
                 ui,
                 "その他",
                 &mut self.monster_race.skill.miscs,
@@ -308,6 +310,103 @@ impl MonsterRaceDefinitionMakerApp {
             ui.add(
                 egui::DragValue::new(&mut self.monster_race.skill_use_prob_div)
                     .clamp_range(1..=100),
+            );
+        });
+    }
+
+    fn update_flags_info1(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            check_box_list_from_flag_tables(
+                ui,
+                "耐性",
+                &mut self.monster_race.flags.resistance,
+                &monster::MONSTER_RESISTANCE_TABLES,
+            );
+            ui.vertical(|ui| {
+                check_box_list_from_flag_tables(
+                    ui,
+                    "オーラ",
+                    &mut self.monster_race.flags.aura,
+                    &monster::MONSTER_AURA_TABLES,
+                );
+                check_box_list_from_flag_tables(
+                    ui,
+                    "弱点",
+                    &mut self.monster_race.flags.weakness,
+                    &monster::MONSTER_WEAKNESS_TABLES,
+                );
+                check_box_list_from_flag_tables(
+                    ui,
+                    "ドロップ",
+                    &mut self.monster_race.flags.drop,
+                    &monster::MONSTER_DROP_TABLES,
+                );
+            });
+            ui.vertical(|ui| {
+                check_box_list_from_flag_tables(
+                    ui,
+                    "種族/属性",
+                    &mut self.monster_race.flags.kind,
+                    &monster::MONSTER_KIND_TABLES,
+                );
+                check_box_list_from_flag_tables(
+                    ui,
+                    "外見",
+                    &mut self.monster_race.flags.visual,
+                    &monster::MONSTER_VISUAL_TABLES,
+                );
+            });
+
+            ui.vertical(|ui| {
+                check_box_list_from_flag_tables(
+                    ui,
+                    "行動",
+                    &mut self.monster_race.flags.behavior,
+                    &monster::MONSTER_BEHAVIOR_TABLES,
+                );
+                check_box_list_from_flag_tables(
+                    ui,
+                    "特性",
+                    &mut self.monster_race.flags.feature,
+                    &monster::MONSTER_FEATURE_TABLES,
+                );
+            });
+        });
+    }
+
+    fn update_flags_info2(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.vertical(|ui| {
+                check_box_list_from_flag_tables(
+                    ui,
+                    "光源",
+                    &mut self.monster_race.flags.brightness,
+                    &monster::MONSTER_BRIGHTNESS_TABLES,
+                );
+                check_box_list_from_flag_tables(
+                    ui,
+                    "生成数",
+                    &mut self.monster_race.flags.population,
+                    &monster::MONSTER_POPULATION_TABLES,
+                );
+                check_box_list_from_flag_tables(
+                    ui,
+                    "会話",
+                    &mut self.monster_race.flags.speak,
+                    &monster::MONSTER_SPEAK_TABLES,
+                );
+            });
+            check_box_list_from_flag_tables(
+                ui,
+                "地上生成",
+                &mut self.monster_race.flags.wildness,
+                &monster::MONSTER_WILDNESS_TABLES,
+            );
+            check_box_list_from_flag_tables(
+                ui,
+                "その他",
+                &mut self.monster_race.flags.misc,
+                &monster::MONSTER_MISC_TABLES,
             );
         });
     }
@@ -364,6 +463,8 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             ui.selectable_value(side_panel, MonsterRaceBlows, "近接攻撃");
             ui.selectable_value(side_panel, MonsterRaceSkills1, "スキル1");
             ui.selectable_value(side_panel, MonsterRaceSkills2, "スキル2");
+            ui.selectable_value(side_panel, MonsterRaceFlags1, "フラグ1");
+            ui.selectable_value(side_panel, MonsterRaceFlags2, "フラグ2");
             ui.selectable_value(side_panel, MonsterSearch, "モンスター検索");
             ui.selectable_value(side_panel, Export, "エクスポート");
 
@@ -377,6 +478,8 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             MonsterRaceBlows => self.update_blows_info(ui),
             MonsterRaceSkills1 => self.update_skills_info1(ui),
             MonsterRaceSkills2 => self.update_skills_info2(ui),
+            MonsterRaceFlags1 => self.update_flags_info1(ui),
+            MonsterRaceFlags2 => self.update_flags_info2(ui),
             MonsterSearch => self.search_ctx.update(ui),
             Export => self.update_export(ui),
         });
@@ -491,28 +594,28 @@ fn combo_box_from_frag_tables<T>(
         });
 }
 
-fn check_box_list_from_skill_tables<T>(
+fn check_box_list_from_flag_tables<T>(
     ui: &mut egui::Ui,
     header: &str,
-    skills: &mut BTreeSet<T>,
+    flags: &mut BTreeSet<T>,
     tables: &[monster::FlagTable<T>],
 ) where
     T: MonsterRaceFlag + Copy + Ord,
 {
-    let mut skill_map = tables
+    let mut flag_map = tables
         .iter()
-        .map(|t| (t.flag, skills.contains(&t.flag)))
+        .map(|t| (t.flag, flags.contains(&t.flag)))
         .collect::<BTreeMap<_, _>>();
     ui.group(|ui| {
         ui.vertical(|ui| {
             ui.heading(header);
-            for (flag, selected) in skill_map.iter_mut() {
+            for (flag, selected) in flag_map.iter_mut() {
                 ui.checkbox(selected, flag.description())
                     .on_hover_text(flag.token());
             }
         });
     });
-    *skills = skill_map
+    *flags = flag_map
         .iter()
         .filter_map(
             |(flag, selected)| {

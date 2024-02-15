@@ -29,6 +29,8 @@ pub struct MonsterRace {
 
     pub skill: MonsterSkill,
     pub skill_use_prob_div: i32,
+
+    pub flags: MonsterFlags,
 }
 
 #[derive(Default, serde::Deserialize, serde::Serialize)]
@@ -59,6 +61,45 @@ pub struct MonsterSkill {
     pub damages: BTreeSet<MonsterSkillDamage>,
     pub summons: BTreeSet<MonsterSkillSummon>,
     pub miscs: BTreeSet<MonsterSkillMisc>,
+}
+
+#[derive(Default, serde::Deserialize, serde::Serialize)]
+pub struct MonsterFlags {
+    pub aura: BTreeSet<MonsterAura>,
+    pub behavior: BTreeSet<MonsterBehavior>,
+    pub brightness: BTreeSet<MonsterBrightness>,
+    pub drop: BTreeSet<MonsterDrop>,
+    pub feature: BTreeSet<MonsterFeature>,
+    pub kind: BTreeSet<MonsterKind>,
+    pub misc: BTreeSet<MonsterMisc>,
+    pub population: BTreeSet<MonsterPopulation>,
+    pub resistance: BTreeSet<MonsterResistance>,
+    pub speak: BTreeSet<MonsterSpeak>,
+    pub visual: BTreeSet<MonsterVisual>,
+    pub weakness: BTreeSet<MonsterWeakness>,
+    pub wildness: BTreeSet<MonsterWildness>,
+}
+
+impl MonsterFlags {
+    fn collect_enabled_tokens(&self) -> Vec<&str> {
+        let mut result = Vec::new();
+
+        result.extend(self.kind.iter().map(|f| f.token()));
+        result.extend(self.drop.iter().map(|f| f.token()));
+        result.extend(self.visual.iter().map(|f| f.token()));
+        result.extend(self.behavior.iter().map(|f| f.token()));
+        result.extend(self.feature.iter().map(|f| f.token()));
+        result.extend(self.brightness.iter().map(|f| f.token()));
+        result.extend(self.misc.iter().map(|f| f.token()));
+        result.extend(self.population.iter().map(|f| f.token()));
+        result.extend(self.speak.iter().map(|f| f.token()));
+        result.extend(self.aura.iter().map(|f| f.token()));
+        result.extend(self.resistance.iter().map(|f| f.token()));
+        result.extend(self.weakness.iter().map(|f| f.token()));
+        result.extend(self.wildness.iter().map(|f| f.token()));
+
+        result
+    }
 }
 
 impl MonsterRace {
@@ -95,6 +136,8 @@ impl MonsterRace {
             result += &make_blow_line(blow);
         }
         result += make_flag_lines("X", [self.sex.token()].as_slice()).as_str();
+
+        result += make_flag_lines("F", &self.flags.collect_enabled_tokens()).as_str();
 
         let mut skill_flags = Vec::new();
         skill_flags.extend(self.skill.breathes.iter().map(|f| f.token()));
