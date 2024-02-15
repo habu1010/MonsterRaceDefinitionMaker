@@ -83,6 +83,16 @@ pub struct MonsterFlags {
     pub wildness: BTreeSet<MonsterWildness>,
 }
 
+impl MonsterHitDice {
+    pub fn max(&self) -> i32 {
+        self.num * self.sides
+    }
+
+    pub fn average(&self) -> f64 {
+        self.num as f64 * (self.sides as f64 + 1.0) / 2.0
+    }
+}
+
 impl MonsterFlags {
     fn collect_enabled_tokens(&self) -> Vec<&str> {
         let mut result = Vec::new();

@@ -140,6 +140,20 @@ impl MonsterRaceDefinitionMakerApp {
                     });
                     ui.end_row();
 
+                    let force_max_hp = self
+                        .monster_race
+                        .flags
+                        .misc
+                        .contains(&monster::MonsterMisc::ForceMaxHp);
+                    if force_max_hp {
+                        ui.label(" 最大値(固定)");
+                        ui.label(format!("{}", self.monster_race.hp.max()));
+                    } else {
+                        ui.label(" 期待値");
+                        ui.label(format!("{:.1}", self.monster_race.hp.average()));
+                    }
+                    ui.end_row();
+
                     let mut drag_value_form = |label, value, range| {
                         ui.label(label);
                         ui.add(egui::DragValue::new(value).clamp_range(range));
