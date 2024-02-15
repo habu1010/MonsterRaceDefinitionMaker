@@ -498,6 +498,8 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                 egui::warn_if_debug_build(ui);
+                ui.label(env!("CARGO_PKG_VERSION"));
+                ui.label("Monster Race Definition Maker");
             });
         });
 
