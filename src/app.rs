@@ -46,6 +46,7 @@ enum SidePanelItem {
     MonsterRaceSkills2,
     MonsterRaceFlags1,
     MonsterRaceFlags2,
+    MonsterRaceEscorts,
     MonsterRaceFlavor,
     MonsterSearch,
     Export,
@@ -426,6 +427,44 @@ impl MonsterRaceDefinitionMakerApp {
         });
     }
 
+    fn update_escorts(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.label("護衛種別数:");
+            ui.add(
+                egui::DragValue::new(&mut self.monster_race.escort_num)
+                    .clamp_range(0..=self.monster_race.escorts.len()),
+            );
+        });
+        for escort in self
+            .monster_race
+            .escorts
+            .iter_mut()
+            .take(self.monster_race.escort_num)
+        {
+            ui.group(|ui| {
+                ui.horizontal(|ui| {
+                    ui.label("モンスターID:");
+                    ui.add(
+                        egui::DragValue::new(&mut escort.monster_id)
+                            .clamp_range(0..=self.search_ctx.db.id_range().max().unwrap()),
+                    );
+                    let name = match self.search_ctx.db.get(escort.monster_id) {
+                        Ok(m) => m.name.to_string(),
+                        Err(_) => "不明".to_string(),
+                    };
+
+                    ui.text_edit_singleline(&mut name.as_str());
+                });
+                ui.horizontal(|ui| {
+                    ui.label("数:");
+                    ui.add(egui::DragValue::new(&mut escort.num.num).clamp_range(1..=9));
+                    ui.label("d");
+                    ui.add(egui::DragValue::new(&mut escort.num.sides).clamp_range(1..=9));
+                });
+            });
+        }
+    }
+
     fn update_flavor(&mut self, ui: &mut egui::Ui) {
         ui.label("日本語フレーバー:");
         egui::ScrollArea::vertical()
@@ -506,6 +545,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             ui.selectable_value(side_panel, MonsterRaceSkills2, "スキル2");
             ui.selectable_value(side_panel, MonsterRaceFlags1, "フラグ1");
             ui.selectable_value(side_panel, MonsterRaceFlags2, "フラグ2");
+            ui.selectable_value(side_panel, MonsterRaceEscorts, "護衛");
             ui.selectable_value(side_panel, MonsterRaceFlavor, "フレーバーテキスト");
             ui.selectable_value(side_panel, MonsterSearch, "モンスター検索");
             ui.selectable_value(side_panel, Export, "エクスポート");
@@ -524,6 +564,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             MonsterRaceSkills2 => self.update_skills_info2(ui),
             MonsterRaceFlags1 => self.update_flags_info1(ui),
             MonsterRaceFlags2 => self.update_flags_info2(ui),
+            MonsterRaceEscorts => self.update_escorts(ui),
             MonsterRaceFlavor => self.update_flavor(ui),
             MonsterSearch => self.search_ctx.update(ui),
             Export => self.update_export(ui),

@@ -32,6 +32,9 @@ pub struct MonsterRace {
 
     pub flags: MonsterFlags,
 
+    pub escort_num: usize,
+    pub escorts: [MonsterEscort; 6],
+
     pub flavor: String,
     pub english_flavor: String,
 }
@@ -42,7 +45,7 @@ pub struct MonsterSymbol {
     pub color: crate::color::Color,
 }
 
-#[derive(Default, serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize)]
 pub struct MonsterHitDice {
     pub num: i32,
     pub sides: i32,
@@ -81,6 +84,18 @@ pub struct MonsterFlags {
     pub visual: BTreeSet<MonsterVisual>,
     pub weakness: BTreeSet<MonsterWeakness>,
     pub wildness: BTreeSet<MonsterWildness>,
+}
+
+#[derive(Default, serde::Deserialize, serde::Serialize)]
+pub struct MonsterEscort {
+    pub monster_id: u32,
+    pub num: MonsterHitDice,
+}
+
+impl Default for MonsterHitDice {
+    fn default() -> Self {
+        Self { num: 1, sides: 1 }
+    }
 }
 
 impl MonsterHitDice {
@@ -164,6 +179,8 @@ impl MonsterRace {
             result += make_flag_lines("S", &skill_flags).as_str();
         }
 
+        result += make_escorts_lines(self.escort_num, &self.escorts).as_str();
+
         result += make_flavor_lines("D:$", &self.english_flavor).as_str();
         result += make_flavor_lines("D:", &self.flavor).as_str();
 
@@ -229,4 +246,17 @@ fn make_flavor_lines(header: &str, flavor: &str) -> String {
     }
 
     lines
+}
+
+fn make_escorts_lines(escort_num: usize, escorts: &[MonsterEscort]) -> String {
+    let mut result = String::new();
+
+    for escort in escorts.iter().take(escort_num) {
+        result += &format!(
+            "R:{}:{}d{}\n",
+            escort.monster_id, escort.num.num, escort.num.sides
+        );
+    }
+
+    result
 }
