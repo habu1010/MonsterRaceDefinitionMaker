@@ -507,7 +507,8 @@ fn check_box_list_from_skill_tables<T>(
         ui.vertical(|ui| {
             ui.heading(header);
             for (flag, selected) in skill_map.iter_mut() {
-                ui.checkbox(selected, flag.description());
+                ui.checkbox(selected, flag.description())
+                    .on_hover_text(flag.token());
             }
         });
     });
