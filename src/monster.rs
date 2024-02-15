@@ -31,6 +31,9 @@ pub struct MonsterRace {
     pub skill_use_prob_div: i32,
 
     pub flags: MonsterFlags,
+
+    pub flavor: String,
+    pub english_flavor: String,
 }
 
 #[derive(Default, serde::Deserialize, serde::Serialize)]
@@ -151,6 +154,9 @@ impl MonsterRace {
             result += make_flag_lines("S", &skill_flags).as_str();
         }
 
+        result += make_flavor_lines("D:$", &self.english_flavor).as_str();
+        result += make_flavor_lines("D:", &self.flavor).as_str();
+
         result
     }
 }
@@ -199,4 +205,18 @@ fn make_flag_lines(header: &str, token_list: &[&str]) -> String {
     }
 
     result
+}
+
+fn make_flavor_lines(header: &str, flavor: &str) -> String {
+    let mut lines = String::new();
+
+    for line in flavor
+        .split('\n')
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+    {
+        lines.push_str(&format!("{}{}\n", header, line));
+    }
+
+    lines
 }

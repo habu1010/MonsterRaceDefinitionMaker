@@ -46,6 +46,7 @@ enum SidePanelItem {
     MonsterRaceSkills2,
     MonsterRaceFlags1,
     MonsterRaceFlags2,
+    MonsterRaceFlavor,
     MonsterSearch,
     Export,
 }
@@ -411,6 +412,32 @@ impl MonsterRaceDefinitionMakerApp {
         });
     }
 
+    fn update_flavor(&mut self, ui: &mut egui::Ui) {
+        ui.label("日本語フレーバー:");
+        egui::ScrollArea::vertical()
+            .id_source("japanese flavor")
+            .max_height(200.0)
+            .auto_shrink(false)
+            .show(ui, |ui| {
+                egui::TextEdit::multiline(&mut self.monster_race.flavor)
+                    .desired_rows(10)
+                    .desired_width(f32::INFINITY)
+                    .show(ui);
+            });
+        ui.add_space(10.0);
+        ui.label("英語フレーバー:");
+        egui::ScrollArea::vertical()
+            .id_source("english flavor")
+            .max_height(200.0)
+            .auto_shrink(false)
+            .show(ui, |ui| {
+                egui::TextEdit::multiline(&mut self.monster_race.english_flavor)
+                    .desired_rows(10)
+                    .desired_width(f32::INFINITY)
+                    .show(ui);
+            });
+    }
+
     fn update_export(&mut self, ui: &mut egui::Ui) {
         let mut monster_race_definition = self.monster_race.to_monster_race_definition();
 
@@ -465,6 +492,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             ui.selectable_value(side_panel, MonsterRaceSkills2, "スキル2");
             ui.selectable_value(side_panel, MonsterRaceFlags1, "フラグ1");
             ui.selectable_value(side_panel, MonsterRaceFlags2, "フラグ2");
+            ui.selectable_value(side_panel, MonsterRaceFlavor, "フレーバーテキスト");
             ui.selectable_value(side_panel, MonsterSearch, "モンスター検索");
             ui.selectable_value(side_panel, Export, "エクスポート");
 
@@ -480,6 +508,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             MonsterRaceSkills2 => self.update_skills_info2(ui),
             MonsterRaceFlags1 => self.update_flags_info1(ui),
             MonsterRaceFlags2 => self.update_flags_info2(ui),
+            MonsterRaceFlavor => self.update_flavor(ui),
             MonsterSearch => self.search_ctx.update(ui),
             Export => self.update_export(ui),
         });
