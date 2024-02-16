@@ -2,6 +2,7 @@ mod flags;
 
 use std::{collections::BTreeSet, fmt::Write};
 
+use crate::util::HitDice;
 pub use flags::*;
 
 #[derive(Default, serde::Deserialize, serde::Serialize)]
@@ -11,7 +12,7 @@ pub struct MonsterRace {
 
     pub symbol: MonsterSymbol,
 
-    pub hp: MonsterHitDice,
+    pub hp: HitDice,
     pub speed: i32,
     pub vision: i32,
     pub ac: i32,
@@ -45,18 +46,12 @@ pub struct MonsterSymbol {
     pub color: crate::color::Color,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
-pub struct MonsterHitDice {
-    pub num: i32,
-    pub sides: i32,
-}
-
 #[derive(Default, serde::Deserialize, serde::Serialize)]
 pub struct MonsterBlow {
     pub method: MonsterBrowMethod,
     pub effect: MonsterBrowEffect,
     pub has_damage: bool,
-    pub damage_dice: MonsterHitDice,
+    pub damage_dice: HitDice,
 }
 
 #[derive(Default, serde::Deserialize, serde::Serialize)]
@@ -89,23 +84,7 @@ pub struct MonsterFlags {
 #[derive(Default, serde::Deserialize, serde::Serialize)]
 pub struct MonsterEscort {
     pub monster_id: u32,
-    pub num: MonsterHitDice,
-}
-
-impl Default for MonsterHitDice {
-    fn default() -> Self {
-        Self { num: 1, sides: 1 }
-    }
-}
-
-impl MonsterHitDice {
-    pub fn max(&self) -> i32 {
-        self.num * self.sides
-    }
-
-    pub fn average(&self) -> f64 {
-        self.num as f64 * (self.sides as f64 + 1.0) / 2.0
-    }
+    pub num: HitDice,
 }
 
 impl MonsterFlags {
@@ -133,7 +112,6 @@ impl MonsterFlags {
 impl MonsterRace {
     pub fn new() -> Self {
         Self {
-            hp: MonsterHitDice { num: 1, sides: 1 },
             vision: 20,
             skill_use_prob_div: 1,
 
@@ -207,7 +185,7 @@ fn make_blow_line(blow: &MonsterBlow) -> String {
     write!(result, "B:{}:{}", blow.method.token(), blow.effect.token()).unwrap();
 
     if blow.has_damage {
-        let MonsterHitDice { num, sides } = blow.damage_dice;
+        let HitDice { num, sides } = blow.damage_dice;
         write!(result, ":{num}d{sides}").unwrap();
     }
 
