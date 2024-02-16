@@ -117,7 +117,7 @@ impl MonsterRaceDefinitionMakerApp {
                             .monospace()
                             .size(24.0)
                             .background_color(egui::Color32::BLACK)
-                            .color(symbol.color.to_color32()),
+                            .color(symbol.color),
                     );
                 });
         });

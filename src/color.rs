@@ -25,6 +25,8 @@ pub enum Color {
     LightBrown,
 }
 
+pub struct ColorSymbol(char);
+
 use Color::*;
 
 pub const COLORS: [Color; 16] = [
@@ -55,9 +57,15 @@ impl fmt::Display for Color {
     }
 }
 
-impl Color {
-    pub fn to_char(self) -> char {
-        match self {
+impl fmt::Display for ColorSymbol {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<Color> for ColorSymbol {
+    fn from(color: Color) -> Self {
+        let symbol = match color {
             Black => 'D',
             White => 'w',
             Gray => 's',
@@ -74,13 +82,16 @@ impl Color {
             LightGreen => 'G',
             LightBlue => 'B',
             LightBrown => 'U',
-        }
+        };
+        ColorSymbol(symbol)
     }
+}
 
-    pub fn to_color32(self) -> egui::Color32 {
-        match self {
-            Black => egui::Color32::from_rgb(0x00, 0x00, 0x00),
-            White => egui::Color32::from_rgb(0xff, 0xff, 0xff),
+impl From<Color> for egui::Color32 {
+    fn from(color: Color) -> Self {
+        match color {
+            Black => egui::Color32::BLACK,
+            White => egui::Color32::WHITE,
             Gray => egui::Color32::from_rgb(0x80, 0x80, 0x80),
             Orange => egui::Color32::from_rgb(0xff, 0x80, 0x00),
             Red => egui::Color32::from_rgb(0xc0, 0x00, 0x00),

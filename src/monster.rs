@@ -2,7 +2,7 @@ mod flags;
 
 use std::{collections::BTreeSet, fmt::Write};
 
-use crate::util::HitDice;
+use crate::{color, util::HitDice};
 pub use flags::*;
 
 #[derive(Default, serde::Deserialize, serde::Serialize)]
@@ -48,7 +48,7 @@ pub struct MonsterRace {
 #[derive(Default, serde::Deserialize, serde::Serialize)]
 pub struct MonsterSymbol {
     pub char: String,
-    pub color: crate::color::Color,
+    pub color: color::Color,
 }
 
 #[derive(Default, serde::Deserialize, serde::Serialize)]
@@ -155,7 +155,7 @@ impl MonsterRace {
             result,
             "G:{}:{}",
             self.symbol.char,
-            self.symbol.color.to_char()
+            color::ColorSymbol::from(self.symbol.color)
         )
         .unwrap();
         writeln!(
