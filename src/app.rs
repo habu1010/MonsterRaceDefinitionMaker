@@ -202,6 +202,17 @@ impl MonsterRaceDefinitionMakerApp {
         });
     }
 
+    fn draw_arena_info_field(&mut self, ui: &mut egui::Ui) {
+        ui.group(|ui| {
+            let ratio = &mut self.monster_race.odds_correction_ratio;
+            ui.label("闘技場倍率補正");
+            ui.horizontal(|ui| {
+                ui.add(egui::DragValue::new(ratio).clamp_range(1..=999));
+                ui.label("%");
+            });
+        });
+    }
+
     fn update_basic_info(&mut self, ui: &mut egui::Ui) {
         egui::Grid::new("name field")
             .num_columns(2)
@@ -220,10 +231,15 @@ impl MonsterRaceDefinitionMakerApp {
             });
 
         ui.horizontal_top(|ui| {
-            self.draw_symbol_field(ui);
-            self.draw_info_field(ui);
-            self.draw_more_info_field(ui);
-            self.draw_sex_info_field(ui);
+            ui.vertical(|ui| {
+                self.draw_symbol_field(ui);
+                self.draw_info_field(ui);
+            });
+            ui.vertical(|ui| {
+                self.draw_more_info_field(ui);
+                self.draw_sex_info_field(ui);
+                self.draw_arena_info_field(ui);
+            });
         });
     }
 

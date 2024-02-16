@@ -39,6 +39,8 @@ pub struct MonsterRace {
     pub drop_artifact_num: usize,
     pub drop_artifacts: [MonsterArtifactDrop; 6],
 
+    pub odds_correction_ratio: u32,
+
     pub flavor: String,
     pub english_flavor: String,
 }
@@ -138,6 +140,7 @@ impl MonsterRace {
         Self {
             vision: 20,
             skill_use_prob_div: 1,
+            odds_correction_ratio: 100,
 
             ..Default::default()
         }
@@ -190,6 +193,10 @@ impl MonsterRace {
 
         for drop in self.drop_artifacts.iter().take(self.drop_artifact_num) {
             writeln!(result, "A:{}:{}", drop.artifact_id, drop.prob_percent).unwrap();
+        }
+
+        if self.odds_correction_ratio != 100 {
+            writeln!(result, "V:{}", self.odds_correction_ratio).unwrap();
         }
 
         write_flavor_lines(&mut result, "D:$", &self.english_flavor);
