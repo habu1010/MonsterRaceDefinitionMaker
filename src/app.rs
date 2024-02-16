@@ -47,6 +47,7 @@ enum SidePanelItem {
     MonsterRaceFlags1,
     MonsterRaceFlags2,
     MonsterRaceEscorts,
+    MonsterRaceArtifactDrop,
     MonsterRaceFlavor,
     MonsterSearch,
     Export,
@@ -465,6 +466,51 @@ impl MonsterRaceDefinitionMakerApp {
         }
     }
 
+    fn update_artifact_drops(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.label("ドロップ種別数:");
+            ui.add(
+                egui::DragValue::new(&mut self.monster_race.drop_artifact_num)
+                    .clamp_range(0..=self.monster_race.drop_artifacts.len()),
+            );
+        });
+        if self.monster_race.drop_artifact_num == 0 {
+            return;
+        }
+
+        ui.group(|ui| {
+            egui::Grid::new("drop artifact field")
+                .num_columns(2)
+                .striped(true)
+                .show(ui, |ui| {
+                    ui.label("固定アーティファクトID");
+                    ui.label("ドロップ確率(%)");
+                    ui.end_row();
+                    for drop_artifact in self
+                        .monster_race
+                        .drop_artifacts
+                        .iter_mut()
+                        .take(self.monster_race.drop_artifact_num)
+                    {
+                        ui.add(
+                            egui::DragValue::new(&mut drop_artifact.artifact_id)
+                                .clamp_range(0..=9999),
+                        );
+                        ui.add(
+                            egui::DragValue::new(&mut drop_artifact.prob_percent)
+                                .clamp_range(0..=100),
+                        );
+                        ui.end_row();
+                    }
+                });
+        });
+
+        ui.hyperlink_to(
+            "固定アーティファクト定義ファイル参照",
+            "https://raw.githubusercontent.com/hengband/hengband/develop/lib/edit/ArtifactDefinitions.txt"
+        );
+    }
+
     fn update_flavor(&mut self, ui: &mut egui::Ui) {
         ui.label("日本語フレーバー:");
         egui::ScrollArea::vertical()
@@ -546,6 +592,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             ui.selectable_value(side_panel, MonsterRaceFlags1, "フラグ1");
             ui.selectable_value(side_panel, MonsterRaceFlags2, "フラグ2");
             ui.selectable_value(side_panel, MonsterRaceEscorts, "護衛");
+            ui.selectable_value(side_panel, MonsterRaceArtifactDrop, "固定AFドロップ");
             ui.selectable_value(side_panel, MonsterRaceFlavor, "フレーバーテキスト");
             ui.selectable_value(side_panel, MonsterSearch, "モンスター検索");
             ui.selectable_value(side_panel, Export, "エクスポート");
@@ -565,6 +612,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             MonsterRaceFlags1 => self.update_flags_info1(ui),
             MonsterRaceFlags2 => self.update_flags_info2(ui),
             MonsterRaceEscorts => self.update_escorts(ui),
+            MonsterRaceArtifactDrop => self.update_artifact_drops(ui),
             MonsterRaceFlavor => self.update_flavor(ui),
             MonsterSearch => self.search_ctx.update(ui),
             Export => self.update_export(ui),

@@ -36,6 +36,9 @@ pub struct MonsterRace {
     pub escort_num: usize,
     pub escorts: [MonsterEscort; 6],
 
+    pub drop_artifact_num: usize,
+    pub drop_artifacts: [MonsterArtifactDrop; 6],
+
     pub flavor: String,
     pub english_flavor: String,
 }
@@ -85,6 +88,12 @@ pub struct MonsterFlags {
 pub struct MonsterEscort {
     pub monster_id: u32,
     pub num: HitDice,
+}
+
+#[derive(Default, serde::Deserialize, serde::Serialize)]
+pub struct MonsterArtifactDrop {
+    pub artifact_id: u32,
+    pub prob_percent: u32,
 }
 
 impl MonsterFlags {
@@ -168,6 +177,7 @@ impl MonsterRace {
         }
 
         result += make_escorts_lines(self.escort_num, &self.escorts).as_str();
+        result += make_artifact_drops_lines(self.drop_artifact_num, &self.drop_artifacts).as_str();
 
         result += make_flavor_lines("D:$", &self.english_flavor).as_str();
         result += make_flavor_lines("D:", &self.flavor).as_str();
@@ -250,4 +260,17 @@ fn make_escorts_lines(escort_num: usize, escorts: &[MonsterEscort]) -> String {
     }
 
     result
+}
+
+fn make_artifact_drops_lines(
+    drop_artifact_num: usize,
+    drop_artifacts: &[MonsterArtifactDrop],
+) -> String {
+    drop_artifacts
+        .iter()
+        .take(drop_artifact_num)
+        .fold(String::new(), |mut acc, drop| {
+            writeln!(acc, "A:{}:{}", drop.artifact_id, drop.prob_percent).unwrap();
+            acc
+        })
 }
