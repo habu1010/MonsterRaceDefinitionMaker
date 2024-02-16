@@ -142,10 +142,9 @@ impl MonsterRace {
         .unwrap();
         writeln!(
             result,
-            "I:{}:{}d{}:{}:{}:{}",
+            "I:{}:{}:{}:{}:{}",
             self.speed + 110,
-            self.hp.num,
-            self.hp.sides,
+            self.hp,
             self.vision,
             self.ac,
             self.alertness
@@ -195,8 +194,7 @@ fn make_blow_line(blow: &MonsterBlow) -> String {
     write!(result, "B:{}:{}", blow.method.token(), blow.effect.token()).unwrap();
 
     if blow.has_damage {
-        let HitDice { num, sides } = blow.damage_dice;
-        write!(result, ":{num}d{sides}").unwrap();
+        write!(result, ":{}", blow.damage_dice).unwrap();
     }
 
     result.push('\n');
@@ -251,12 +249,7 @@ fn make_escorts_lines(escort_num: usize, escorts: &[MonsterEscort]) -> String {
     let mut result = String::new();
 
     for escort in escorts.iter().take(escort_num) {
-        writeln!(
-            result,
-            "R:{}:{}d{}\n",
-            escort.monster_id, escort.num.num, escort.num.sides
-        )
-        .unwrap();
+        writeln!(result, "R:{}:{}\n", escort.monster_id, escort.num).unwrap();
     }
 
     result

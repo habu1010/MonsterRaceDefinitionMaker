@@ -23,3 +23,9 @@ impl HitDice {
         self.num as f64 * (self.sides as f64 + 1.0) / 2.0
     }
 }
+
+impl std::fmt::Display for HitDice {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}d{}", self.num, self.sides)
+    }
+}
