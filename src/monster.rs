@@ -96,6 +96,21 @@ pub struct MonsterArtifactDrop {
     pub prob_percent: u32,
 }
 
+impl MonsterSkill {
+    fn collect_enabled_tokens(&self) -> Vec<&str> {
+        let mut result = Vec::new();
+
+        result.extend(self.breathes.iter().map(|f| f.token()));
+        result.extend(self.balls.iter().map(|f| f.token()));
+        result.extend(self.bolts.iter().map(|f| f.token()));
+        result.extend(self.damages.iter().map(|f| f.token()));
+        result.extend(self.summons.iter().map(|f| f.token()));
+        result.extend(self.miscs.iter().map(|f| f.token()));
+
+        result
+    }
+}
+
 impl MonsterFlags {
     fn collect_enabled_tokens(&self) -> Vec<&str> {
         let mut result = Vec::new();
@@ -157,113 +172,76 @@ impl MonsterRace {
         )
         .unwrap();
         for blow in self.blows.iter() {
-            result += &make_blow_line(blow);
+            write_blow_lines(&mut result, blow);
         }
-        result += make_flag_lines("X", [self.sex.token()].as_slice()).as_str();
+        write_flag_lines(&mut result, "X", [self.sex.token()].as_slice());
 
-        result += make_flag_lines("F", &self.flags.collect_enabled_tokens()).as_str();
+        write_flag_lines(&mut result, "F", &self.flags.collect_enabled_tokens());
 
-        let mut skill_flags = Vec::new();
-        skill_flags.extend(self.skill.breathes.iter().map(|f| f.token()));
-        skill_flags.extend(self.skill.balls.iter().map(|f| f.token()));
-        skill_flags.extend(self.skill.bolts.iter().map(|f| f.token()));
-        skill_flags.extend(self.skill.damages.iter().map(|f| f.token()));
-        skill_flags.extend(self.skill.summons.iter().map(|f| f.token()));
-        skill_flags.extend(self.skill.miscs.iter().map(|f| f.token()));
-        if !skill_flags.is_empty() {
+        let skill_tokens = self.skill.collect_enabled_tokens();
+        if !skill_tokens.is_empty() {
             writeln!(result, "S:1_IN_{}", self.skill_use_prob_div).unwrap();
-            result += make_flag_lines("S", &skill_flags).as_str();
+            write_flag_lines(&mut result, "S", &skill_tokens);
         }
 
-        result += make_escorts_lines(self.escort_num, &self.escorts).as_str();
-        result += make_artifact_drops_lines(self.drop_artifact_num, &self.drop_artifacts).as_str();
+        for escort in self.escorts.iter().take(self.escort_num) {
+            writeln!(result, "R:{}:{}", escort.monster_id, escort.num).unwrap();
+        }
 
-        result += make_flavor_lines("D:$", &self.english_flavor).as_str();
-        result += make_flavor_lines("D:", &self.flavor).as_str();
+        for drop in self.drop_artifacts.iter().take(self.drop_artifact_num) {
+            writeln!(result, "A:{}:{}", drop.artifact_id, drop.prob_percent).unwrap();
+        }
+
+        write_flavor_lines(&mut result, "D:$", &self.english_flavor);
+        write_flavor_lines(&mut result, "D:", &self.flavor);
 
         result
     }
 }
 
-fn make_blow_line(blow: &MonsterBlow) -> String {
-    let mut result = String::new();
+fn write_blow_lines<W: Write>(writer: &mut W, blow: &MonsterBlow) {
     if blow.method == MonsterBrowMethod::None {
-        return result;
+        return;
     }
 
-    write!(result, "B:{}:{}", blow.method.token(), blow.effect.token()).unwrap();
+    write!(writer, "B:{}:{}", blow.method.token(), blow.effect.token()).unwrap();
 
     if blow.has_damage {
-        write!(result, ":{}", blow.damage_dice).unwrap();
+        write!(writer, ":{}", blow.damage_dice).unwrap();
     }
 
-    result.push('\n');
-
-    result
+    writeln!(writer).unwrap();
 }
 
-fn make_flag_lines(header: &str, token_list: &[&str]) -> String {
-    let mut lines = vec![String::default()];
+fn write_flag_lines<W: Write>(writer: &mut W, header: &str, token_list: &[&str]) {
+    let mut line_len = 0;
 
-    for &token in token_list {
-        if token.is_empty() {
-            continue;
+    for &token in token_list.iter().filter(|t| !t.is_empty()) {
+        if line_len + token.len() > 80 {
+            writeln!(writer).unwrap();
+            line_len = 0;
         }
 
-        if lines.last().unwrap().len() + token.len() > 80 {
-            lines.push(String::default());
-        }
-
-        let current_line = lines.last_mut().unwrap();
-        if current_line.is_empty() {
-            write!(current_line, "{header}:{token}").unwrap();
+        if line_len == 0 {
+            write!(writer, "{header}:{token}").unwrap();
+            line_len += header.len() + 1 + token.len();
         } else {
-            write!(current_line, " | {token}").unwrap();
+            write!(writer, " | {token}").unwrap();
+            line_len += 3 + token.len();
         }
     }
 
-    let mut result = lines.join("\n");
-
-    if !result.is_empty() {
-        result.push('\n');
+    if line_len > 0 {
+        writeln!(writer).unwrap();
     }
-
-    result
 }
 
-fn make_flavor_lines(header: &str, flavor: &str) -> String {
-    let mut lines = String::new();
-
+fn write_flavor_lines<W: Write>(writer: &mut W, header: &str, flavor: &str) {
     for line in flavor
         .split('\n')
         .map(str::trim)
         .filter(|line| !line.is_empty())
     {
-        writeln!(lines, "{header}{line}").unwrap();
+        writeln!(writer, "{header}{line}").unwrap();
     }
-
-    lines
-}
-
-fn make_escorts_lines(escort_num: usize, escorts: &[MonsterEscort]) -> String {
-    let mut result = String::new();
-
-    for escort in escorts.iter().take(escort_num) {
-        writeln!(result, "R:{}:{}\n", escort.monster_id, escort.num).unwrap();
-    }
-
-    result
-}
-
-fn make_artifact_drops_lines(
-    drop_artifact_num: usize,
-    drop_artifacts: &[MonsterArtifactDrop],
-) -> String {
-    drop_artifacts
-        .iter()
-        .take(drop_artifact_num)
-        .fold(String::new(), |mut acc, drop| {
-            writeln!(acc, "A:{}:{}", drop.artifact_id, drop.prob_percent).unwrap();
-            acc
-        })
 }
