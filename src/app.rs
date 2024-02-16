@@ -91,32 +91,29 @@ impl MonsterRaceDefinitionMakerApp {
                 .num_columns(2)
                 .striped(true)
                 .show(ui, |ui| {
+                    let symbol = &mut self.monster_race.symbol;
                     ui.label("シンボル:");
-                    egui::TextEdit::singleline(&mut self.monster_race.symbol.char)
+                    egui::TextEdit::singleline(&mut symbol.char)
                         .desired_width(24.0)
                         .char_limit(1)
                         .show(ui);
                     ui.end_row();
                     ui.label("色:");
                     egui::ComboBox::from_id_source("symbol color")
-                        .selected_text(format!("{}", self.monster_race.symbol.color))
+                        .selected_text(format!("{}", symbol.color))
                         .show_ui(ui, |ui| {
                             for color in color::COLORS {
-                                ui.selectable_value(
-                                    &mut self.monster_race.symbol.color,
-                                    color,
-                                    format!("{}", color),
-                                );
+                                ui.selectable_value(&mut symbol.color, color, color.to_string());
                             }
                         });
                     ui.end_row();
                     ui.label("見た目:");
                     ui.label(
-                        egui::RichText::new(&self.monster_race.symbol.char)
+                        egui::RichText::new(&symbol.char)
                             .monospace()
                             .size(24.0)
                             .background_color(egui::Color32::BLACK)
-                            .color(self.monster_race.symbol.color.to_color32()),
+                            .color(symbol.color.to_color32()),
                     );
                 });
         });
@@ -128,17 +125,12 @@ impl MonsterRaceDefinitionMakerApp {
                 .num_columns(2)
                 .striped(true)
                 .show(ui, |ui| {
+                    let hp = &mut self.monster_race.hp;
                     ui.label("HP:");
                     ui.horizontal(|ui| {
-                        ui.add(
-                            egui::DragValue::new(&mut self.monster_race.hp.num)
-                                .clamp_range(1..=1000),
-                        );
+                        ui.add(egui::DragValue::new(&mut hp.num).clamp_range(1..=1000));
                         ui.label("d");
-                        ui.add(
-                            egui::DragValue::new(&mut self.monster_race.hp.sides)
-                                .clamp_range(1..=1000),
-                        );
+                        ui.add(egui::DragValue::new(&mut hp.sides).clamp_range(1..=1000));
                     });
                     ui.end_row();
 
@@ -149,10 +141,10 @@ impl MonsterRaceDefinitionMakerApp {
                         .contains(&monster::MonsterMisc::ForceMaxHp);
                     if force_max_hp {
                         ui.label(" 最大値(固定)");
-                        ui.label(format!("{}", self.monster_race.hp.max()));
+                        ui.label(format!("{}", hp.max()));
                     } else {
                         ui.label(" 期待値");
-                        ui.label(format!("{:.1}", self.monster_race.hp.average()));
+                        ui.label(format!("{:.1}", hp.average()));
                     }
                     ui.end_row();
 
@@ -256,16 +248,11 @@ impl MonsterRaceDefinitionMakerApp {
                     ui.label("");
                     ui.horizontal_top(|ui| {
                         ui.checkbox(&mut blow.has_damage, "ダメージ");
+                        let dice = &mut blow.damage_dice;
                         if blow.has_damage {
-                            ui.add(
-                                egui::DragValue::new(&mut blow.damage_dice.num)
-                                    .clamp_range(1..=1000),
-                            );
+                            ui.add(egui::DragValue::new(&mut dice.num).clamp_range(1..=1000));
                             ui.label("d");
-                            ui.add(
-                                egui::DragValue::new(&mut blow.damage_dice.sides)
-                                    .clamp_range(1..=1000),
-                            );
+                            ui.add(egui::DragValue::new(&mut dice.sides).clamp_range(1..=1000));
                         }
                     });
                     ui.end_row();
@@ -276,22 +263,23 @@ impl MonsterRaceDefinitionMakerApp {
     fn update_skills_info1(&mut self, ui: &mut egui::Ui) {
         self.update_skill_use_prob(ui);
         ui.horizontal(|ui| {
+            let skill = &mut self.monster_race.skill;
             check_box_list_from_flag_tables(
                 ui,
                 "ブレス",
-                &mut self.monster_race.skill.breathes,
+                &mut skill.breathes,
                 &monster::MONSTER_SKILL_BREATH_TABLES,
             );
             check_box_list_from_flag_tables(
                 ui,
                 "ボール",
-                &mut self.monster_race.skill.balls,
+                &mut skill.balls,
                 &monster::MONSTER_SKILL_BALL_TABLES,
             );
             check_box_list_from_flag_tables(
                 ui,
                 "ボルト",
-                &mut self.monster_race.skill.bolts,
+                &mut skill.bolts,
                 &monster::MONSTER_SKILL_BOLT_TABLES,
             );
         });
@@ -300,22 +288,23 @@ impl MonsterRaceDefinitionMakerApp {
     fn update_skills_info2(&mut self, ui: &mut egui::Ui) {
         self.update_skill_use_prob(ui);
         ui.horizontal(|ui| {
+            let skill = &mut self.monster_race.skill;
             check_box_list_from_flag_tables(
                 ui,
                 "ダメージ",
-                &mut self.monster_race.skill.damages,
+                &mut skill.damages,
                 &monster::MONSTER_SKILL_DAMAGE_TABLES,
             );
             check_box_list_from_flag_tables(
                 ui,
                 "召喚",
-                &mut self.monster_race.skill.summons,
+                &mut skill.summons,
                 &monster::MONSTER_SKILL_SUMMON_TABLES,
             );
             check_box_list_from_flag_tables(
                 ui,
                 "その他",
-                &mut self.monster_race.skill.miscs,
+                &mut skill.miscs,
                 &monster::MONSTER_SKILL_MISC_TABLES,
             );
         });
@@ -333,29 +322,30 @@ impl MonsterRaceDefinitionMakerApp {
 
     fn update_flags_info1(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
+            let flags = &mut self.monster_race.flags;
             check_box_list_from_flag_tables(
                 ui,
                 "耐性",
-                &mut self.monster_race.flags.resistance,
+                &mut flags.resistance,
                 &monster::MONSTER_RESISTANCE_TABLES,
             );
             ui.vertical(|ui| {
                 check_box_list_from_flag_tables(
                     ui,
                     "オーラ",
-                    &mut self.monster_race.flags.aura,
+                    &mut flags.aura,
                     &monster::MONSTER_AURA_TABLES,
                 );
                 check_box_list_from_flag_tables(
                     ui,
                     "弱点",
-                    &mut self.monster_race.flags.weakness,
+                    &mut flags.weakness,
                     &monster::MONSTER_WEAKNESS_TABLES,
                 );
                 check_box_list_from_flag_tables(
                     ui,
                     "ドロップ",
-                    &mut self.monster_race.flags.drop,
+                    &mut flags.drop,
                     &monster::MONSTER_DROP_TABLES,
                 );
             });
@@ -363,13 +353,13 @@ impl MonsterRaceDefinitionMakerApp {
                 check_box_list_from_flag_tables(
                     ui,
                     "種族/属性",
-                    &mut self.monster_race.flags.kind,
+                    &mut flags.kind,
                     &monster::MONSTER_KIND_TABLES,
                 );
                 check_box_list_from_flag_tables(
                     ui,
                     "外見",
-                    &mut self.monster_race.flags.visual,
+                    &mut flags.visual,
                     &monster::MONSTER_VISUAL_TABLES,
                 );
             });
@@ -378,13 +368,13 @@ impl MonsterRaceDefinitionMakerApp {
                 check_box_list_from_flag_tables(
                     ui,
                     "行動",
-                    &mut self.monster_race.flags.behavior,
+                    &mut flags.behavior,
                     &monster::MONSTER_BEHAVIOR_TABLES,
                 );
                 check_box_list_from_flag_tables(
                     ui,
                     "特性",
-                    &mut self.monster_race.flags.feature,
+                    &mut flags.feature,
                     &monster::MONSTER_FEATURE_TABLES,
                 );
             });
@@ -393,36 +383,37 @@ impl MonsterRaceDefinitionMakerApp {
 
     fn update_flags_info2(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
+            let flags = &mut self.monster_race.flags;
             ui.vertical(|ui| {
                 check_box_list_from_flag_tables(
                     ui,
                     "光源",
-                    &mut self.monster_race.flags.brightness,
+                    &mut flags.brightness,
                     &monster::MONSTER_BRIGHTNESS_TABLES,
                 );
                 check_box_list_from_flag_tables(
                     ui,
                     "生成数",
-                    &mut self.monster_race.flags.population,
+                    &mut flags.population,
                     &monster::MONSTER_POPULATION_TABLES,
                 );
                 check_box_list_from_flag_tables(
                     ui,
                     "会話",
-                    &mut self.monster_race.flags.speak,
+                    &mut flags.speak,
                     &monster::MONSTER_SPEAK_TABLES,
                 );
             });
             check_box_list_from_flag_tables(
                 ui,
                 "地上生成",
-                &mut self.monster_race.flags.wildness,
+                &mut flags.wildness,
                 &monster::MONSTER_WILDNESS_TABLES,
             );
             check_box_list_from_flag_tables(
                 ui,
                 "その他",
-                &mut self.monster_race.flags.misc,
+                &mut flags.misc,
                 &monster::MONSTER_MISC_TABLES,
             );
         });
