@@ -21,26 +21,26 @@ pub enum MonsterKind {
 
 use MonsterKind::*;
 
-pub const MONSTER_KIND_TABLES: [FlagTable<MonsterKind>; 15] = [
-    FlagTable::new(Unique, "UNIQUE", "ユニーク"),
-    FlagTable::new(Human, "HUMAN", "人間"),
-    FlagTable::new(Quantum, "QUANTUM", "量子生物"),
-    FlagTable::new(Orc, "ORC", "オーク"),
-    FlagTable::new(Troll, "TROLL", "トロル"),
-    FlagTable::new(Giant, "GIANT", "巨人"),
-    FlagTable::new(Dragon, "DRAGON", "ドラゴン"),
-    FlagTable::new(Demon, "DEMON", "悪魔"),
-    FlagTable::new(Undead, "UNDEAD", "アンデッド"),
-    FlagTable::new(Evil, "EVIL", "邪悪"),
-    FlagTable::new(Animal, "ANIMAL", "動物"),
-    FlagTable::new(Amberite, "AMBERITE", "アンバーの王族"),
-    FlagTable::new(Good, "GOOD", "善良"),
-    FlagTable::new(Nonliving, "NONLIVING", "非生物"),
-    FlagTable::new(Angel, "ANGEL", "天使"),
+const MONSTER_KIND_TABLE: [FlagTableRow<MonsterKind>; 15] = [
+    FlagTableRow::new(Unique, "UNIQUE", "ユニーク"),
+    FlagTableRow::new(Human, "HUMAN", "人間"),
+    FlagTableRow::new(Quantum, "QUANTUM", "量子生物"),
+    FlagTableRow::new(Orc, "ORC", "オーク"),
+    FlagTableRow::new(Troll, "TROLL", "トロル"),
+    FlagTableRow::new(Giant, "GIANT", "巨人"),
+    FlagTableRow::new(Dragon, "DRAGON", "ドラゴン"),
+    FlagTableRow::new(Demon, "DEMON", "悪魔"),
+    FlagTableRow::new(Undead, "UNDEAD", "アンデッド"),
+    FlagTableRow::new(Evil, "EVIL", "邪悪"),
+    FlagTableRow::new(Animal, "ANIMAL", "動物"),
+    FlagTableRow::new(Amberite, "AMBERITE", "アンバーの王族"),
+    FlagTableRow::new(Good, "GOOD", "善良"),
+    FlagTableRow::new(Nonliving, "NONLIVING", "非生物"),
+    FlagTableRow::new(Angel, "ANGEL", "天使"),
 ];
 
 impl MonsterRaceFlag for MonsterKind {
-    fn get_flag_tables(&self) -> &[FlagTable<Self>] {
-        &MONSTER_KIND_TABLES
+    fn get_flag_table() -> &'static [FlagTableRow<Self>] {
+        &MONSTER_KIND_TABLE
     }
 }

@@ -27,32 +27,32 @@ pub enum MonsterSkillMisc {
 
 use MonsterSkillMisc::*;
 
-pub const MONSTER_SKILL_MISC_TABLES: [FlagTable<MonsterSkillMisc>; 21] = [
-    FlagTable::new(Shriek, "SHRIEK", "悲鳴を上げる"),
-    FlagTable::new(Scare, "SCARE", "恐怖"),
-    FlagTable::new(Blind, "BLIND", "目くらまし"),
-    FlagTable::new(Confusion, "CONF", "混乱"),
-    FlagTable::new(Slow, "SLOW", "減速"),
-    FlagTable::new(Hold, "HOLD", "麻痺"),
-    FlagTable::new(Haste, "HASTE", "加速"),
-    FlagTable::new(Heal, "HEAL", "治癒"),
-    FlagTable::new(Invulnerability, "INVULNER", "無敵化"),
-    FlagTable::new(Dispel, "DISPEL", "魔法消去"),
-    FlagTable::new(Blink, "BLINK", "ショートテレポート"),
-    FlagTable::new(Teleport, "TPORT", "テレポート"),
-    FlagTable::new(TeleportTo, "TELE_TO", "テレポートバック"),
-    FlagTable::new(TeleportAway, "TELE_AWAY", "テレポートアウェイ"),
-    FlagTable::new(TeleportLevel, "TELE_LEVEL", "テレポート・レベル"),
-    FlagTable::new(World, "WORLD", "時を止める"),
-    FlagTable::new(Darkness, "DARKNESS", "暗闇"),
-    FlagTable::new(Traps, "TRAPS", "トラップ"),
-    FlagTable::new(Forget, "FORGET", "記憶消去"),
-    FlagTable::new(RaiseDead, "ANIM_DEAD", "死者復活"),
-    FlagTable::new(Special, "SPECIAL", "特別な行動をする"),
+const MONSTER_SKILL_MISC_TABLE: [FlagTableRow<MonsterSkillMisc>; 21] = [
+    FlagTableRow::new(Shriek, "SHRIEK", "悲鳴を上げる"),
+    FlagTableRow::new(Scare, "SCARE", "恐怖"),
+    FlagTableRow::new(Blind, "BLIND", "目くらまし"),
+    FlagTableRow::new(Confusion, "CONF", "混乱"),
+    FlagTableRow::new(Slow, "SLOW", "減速"),
+    FlagTableRow::new(Hold, "HOLD", "麻痺"),
+    FlagTableRow::new(Haste, "HASTE", "加速"),
+    FlagTableRow::new(Heal, "HEAL", "治癒"),
+    FlagTableRow::new(Invulnerability, "INVULNER", "無敵化"),
+    FlagTableRow::new(Dispel, "DISPEL", "魔法消去"),
+    FlagTableRow::new(Blink, "BLINK", "ショートテレポート"),
+    FlagTableRow::new(Teleport, "TPORT", "テレポート"),
+    FlagTableRow::new(TeleportTo, "TELE_TO", "テレポートバック"),
+    FlagTableRow::new(TeleportAway, "TELE_AWAY", "テレポートアウェイ"),
+    FlagTableRow::new(TeleportLevel, "TELE_LEVEL", "テレポート・レベル"),
+    FlagTableRow::new(World, "WORLD", "時を止める"),
+    FlagTableRow::new(Darkness, "DARKNESS", "暗闇"),
+    FlagTableRow::new(Traps, "TRAPS", "トラップ"),
+    FlagTableRow::new(Forget, "FORGET", "記憶消去"),
+    FlagTableRow::new(RaiseDead, "ANIM_DEAD", "死者復活"),
+    FlagTableRow::new(Special, "SPECIAL", "特別な行動をする"),
 ];
 
 impl MonsterRaceFlag for MonsterSkillMisc {
-    fn get_flag_tables(&self) -> &[FlagTable<Self>] {
-        &MONSTER_SKILL_MISC_TABLES
+    fn get_flag_table() -> &'static [FlagTableRow<Self>] {
+        &MONSTER_SKILL_MISC_TABLE
     }
 }

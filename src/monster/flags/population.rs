@@ -8,13 +8,13 @@ pub enum MonsterPopulation {
 
 use MonsterPopulation::*;
 
-pub const MONSTER_POPULATION_TABLES: [FlagTable<MonsterPopulation>; 2] = [
-    FlagTable::new(Nazgul, "NAZGUL", "ナズグル"),
-    FlagTable::new(OnlyOne, "ONLY_ONE", "一体のみ"),
+const MONSTER_POPULATION_TABLE: [FlagTableRow<MonsterPopulation>; 2] = [
+    FlagTableRow::new(Nazgul, "NAZGUL", "ナズグル"),
+    FlagTableRow::new(OnlyOne, "ONLY_ONE", "一体のみ"),
 ];
 
 impl MonsterRaceFlag for MonsterPopulation {
-    fn get_flag_tables(&self) -> &[FlagTable<Self>] {
-        &MONSTER_POPULATION_TABLES
+    fn get_flag_table() -> &'static [FlagTableRow<Self>] {
+        &MONSTER_POPULATION_TABLE
     }
 }

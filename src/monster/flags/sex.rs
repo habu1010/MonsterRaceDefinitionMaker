@@ -12,14 +12,14 @@ pub enum MonsterSex {
 
 use MonsterSex::*;
 
-const MONSTER_SEX_TABLES: [FlagTable<MonsterSex>; 3] = [
-    FlagTable::new(None, "", "区別なし"),
-    FlagTable::new(Male, "MALE", "男性/雄"),
-    FlagTable::new(Female, "FEMALE", "女性/雌"),
+const MONSTER_SEX_TABLE: [FlagTableRow<MonsterSex>; 3] = [
+    FlagTableRow::new(None, "", "区別なし"),
+    FlagTableRow::new(Male, "MALE", "男性/雄"),
+    FlagTableRow::new(Female, "FEMALE", "女性/雌"),
 ];
 
 impl MonsterRaceFlag for MonsterSex {
-    fn get_flag_tables(&self) -> &'static [FlagTable<Self>] {
-        &MONSTER_SEX_TABLES
+    fn get_flag_table() -> &'static [FlagTableRow<Self>] {
+        &MONSTER_SEX_TABLE
     }
 }

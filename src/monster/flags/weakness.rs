@@ -10,15 +10,15 @@ pub enum MonsterWeakness {
 
 use MonsterWeakness::*;
 
-pub const MONSTER_WEAKNESS_TABLES: [FlagTable<MonsterWeakness>; 4] = [
-    FlagTable::new(Fire, "HURT_FIRE", "炎"),
-    FlagTable::new(Cold, "HURT_COLD", "冷気"),
-    FlagTable::new(Lite, "HURT_LITE", "閃光"),
-    FlagTable::new(Rock, "HURT_ROCK", "岩石溶解"),
+const MONSTER_WEAKNESS_TABLE: [FlagTableRow<MonsterWeakness>; 4] = [
+    FlagTableRow::new(Fire, "HURT_FIRE", "炎"),
+    FlagTableRow::new(Cold, "HURT_COLD", "冷気"),
+    FlagTableRow::new(Lite, "HURT_LITE", "閃光"),
+    FlagTableRow::new(Rock, "HURT_ROCK", "岩石溶解"),
 ];
 
 impl MonsterRaceFlag for MonsterWeakness {
-    fn get_flag_tables(&self) -> &[FlagTable<Self>] {
-        &MONSTER_WEAKNESS_TABLES
+    fn get_flag_table() -> &'static [FlagTableRow<Self>] {
+        &MONSTER_WEAKNESS_TABLE
     }
 }

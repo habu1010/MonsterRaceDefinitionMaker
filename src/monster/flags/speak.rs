@@ -12,16 +12,16 @@ pub enum MonsterSpeak {
 
 use MonsterSpeak::*;
 
-pub const MONSTER_SPEAK_TABLES: [FlagTable<MonsterSpeak>; 5] = [
-    FlagTable::new(All, "SPEAK_ALL", "全て"),
-    FlagTable::new(Battle, "SPEAK_BATTLE", "戦闘時"),
-    FlagTable::new(Fear, "SPEAK_FEAR", "恐怖時"),
-    FlagTable::new(Friend, "SPEAK_FRIEND", "友好時"),
-    FlagTable::new(Death, "SPEAK_DEATH", "死亡時"),
+const MONSTER_SPEAK_TABLE: [FlagTableRow<MonsterSpeak>; 5] = [
+    FlagTableRow::new(All, "SPEAK_ALL", "全て"),
+    FlagTableRow::new(Battle, "SPEAK_BATTLE", "戦闘時"),
+    FlagTableRow::new(Fear, "SPEAK_FEAR", "恐怖時"),
+    FlagTableRow::new(Friend, "SPEAK_FRIEND", "友好時"),
+    FlagTableRow::new(Death, "SPEAK_DEATH", "死亡時"),
 ];
 
 impl MonsterRaceFlag for MonsterSpeak {
-    fn get_flag_tables(&self) -> &[FlagTable<Self>] {
-        &MONSTER_SPEAK_TABLES
+    fn get_flag_table() -> &'static [FlagTableRow<Self>] {
+        &MONSTER_SPEAK_TABLE
     }
 }

@@ -34,36 +34,36 @@ pub enum MonsterBrowMethod {
 
 use MonsterBrowMethod::*;
 
-pub const MONSTER_BLOW_METHOD_TABLES: [FlagTable<MonsterBrowMethod>; 25] = [
-    FlagTable::new(None, "", "(なし)"),
-    FlagTable::new(Hit, "HIT", "殴る"),
-    FlagTable::new(Touch, "TOUCH", "触れる"),
-    FlagTable::new(Punch, "PUNCH", "パンチする"),
-    FlagTable::new(Kick, "KICK", "蹴る"),
-    FlagTable::new(Claw, "CLAW", "ひっかく"),
-    FlagTable::new(Bite, "BITE", "噛む"),
-    FlagTable::new(Sting, "STING", "刺す"),
-    FlagTable::new(Slash, "SLASH", "斬る"),
-    FlagTable::new(Butt, "BUTT", "角で突く"),
-    FlagTable::new(Crush, "CRUSH", "体当たりする"),
-    FlagTable::new(Engulf, "ENGULF", "飲み込む"),
-    FlagTable::new(Change, "CHANGE", "請求書をよこす"),
-    FlagTable::new(Crawl, "CRAWL", "体の上を這い回る"),
-    FlagTable::new(Drool, "DROOL", "よだれを垂らす"),
-    FlagTable::new(Spit, "SPIT", "つばを吐く"),
-    FlagTable::new(Explode, "EXPLODE", "爆発する"),
-    FlagTable::new(Gaze, "GAZE", "にらむ"),
-    FlagTable::new(Wail, "WAIL", "泣き叫ぶ"),
-    FlagTable::new(Spore, "SPORE", "胞子を飛ばす"),
-    FlagTable::new(Beg, "BEG", "金をせがむ"),
-    FlagTable::new(Insult, "INSULT", "侮辱する"),
-    FlagTable::new(Moan, "MOAN", "うめく"),
-    FlagTable::new(Show, "SHOW", "歌う"),
-    FlagTable::new(Shoot, "SHOOT", "射撃する"),
+const MONSTER_BLOW_METHOD_TABLE: [FlagTableRow<MonsterBrowMethod>; 25] = [
+    FlagTableRow::new(None, "", "(なし)"),
+    FlagTableRow::new(Hit, "HIT", "殴る"),
+    FlagTableRow::new(Touch, "TOUCH", "触れる"),
+    FlagTableRow::new(Punch, "PUNCH", "パンチする"),
+    FlagTableRow::new(Kick, "KICK", "蹴る"),
+    FlagTableRow::new(Claw, "CLAW", "ひっかく"),
+    FlagTableRow::new(Bite, "BITE", "噛む"),
+    FlagTableRow::new(Sting, "STING", "刺す"),
+    FlagTableRow::new(Slash, "SLASH", "斬る"),
+    FlagTableRow::new(Butt, "BUTT", "角で突く"),
+    FlagTableRow::new(Crush, "CRUSH", "体当たりする"),
+    FlagTableRow::new(Engulf, "ENGULF", "飲み込む"),
+    FlagTableRow::new(Change, "CHANGE", "請求書をよこす"),
+    FlagTableRow::new(Crawl, "CRAWL", "体の上を這い回る"),
+    FlagTableRow::new(Drool, "DROOL", "よだれを垂らす"),
+    FlagTableRow::new(Spit, "SPIT", "つばを吐く"),
+    FlagTableRow::new(Explode, "EXPLODE", "爆発する"),
+    FlagTableRow::new(Gaze, "GAZE", "にらむ"),
+    FlagTableRow::new(Wail, "WAIL", "泣き叫ぶ"),
+    FlagTableRow::new(Spore, "SPORE", "胞子を飛ばす"),
+    FlagTableRow::new(Beg, "BEG", "金をせがむ"),
+    FlagTableRow::new(Insult, "INSULT", "侮辱する"),
+    FlagTableRow::new(Moan, "MOAN", "うめく"),
+    FlagTableRow::new(Show, "SHOW", "歌う"),
+    FlagTableRow::new(Shoot, "SHOOT", "射撃する"),
 ];
 
 impl MonsterRaceFlag for MonsterBrowMethod {
-    fn get_flag_tables(&self) -> &[FlagTable<Self>] {
-        &MONSTER_BLOW_METHOD_TABLES
+    fn get_flag_table() -> &'static [FlagTableRow<Self>] {
+        &MONSTER_BLOW_METHOD_TABLE
     }
 }

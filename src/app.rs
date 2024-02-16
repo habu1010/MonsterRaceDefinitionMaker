@@ -231,18 +231,8 @@ impl MonsterRaceDefinitionMakerApp {
                 for (i, blow) in self.monster_race.blows.iter_mut().enumerate() {
                     ui.label(&format!("攻撃{}:", i + 1));
                     ui.horizontal_top(|ui| {
-                        combo_box_from_frag_tables(
-                            ui,
-                            &format!("blow method {i}"),
-                            &mut blow.method,
-                            &monster::MONSTER_BLOW_METHOD_TABLES,
-                        );
-                        combo_box_from_frag_tables(
-                            ui,
-                            &format!("blow effect {i}"),
-                            &mut blow.effect,
-                            &monster::MONSTER_BLOW_EFFECT_TABLES,
-                        );
+                        combo_box_for_flag(ui, &format!("blow method {i}"), &mut blow.method);
+                        combo_box_for_flag(ui, &format!("blow effect {i}"), &mut blow.effect);
                     });
                     ui.end_row();
                     ui.label("");
@@ -264,24 +254,9 @@ impl MonsterRaceDefinitionMakerApp {
         self.update_skill_use_prob(ui);
         ui.horizontal(|ui| {
             let skill = &mut self.monster_race.skill;
-            check_box_list_from_flag_tables(
-                ui,
-                "ブレス",
-                &mut skill.breathes,
-                &monster::MONSTER_SKILL_BREATH_TABLES,
-            );
-            check_box_list_from_flag_tables(
-                ui,
-                "ボール",
-                &mut skill.balls,
-                &monster::MONSTER_SKILL_BALL_TABLES,
-            );
-            check_box_list_from_flag_tables(
-                ui,
-                "ボルト",
-                &mut skill.bolts,
-                &monster::MONSTER_SKILL_BOLT_TABLES,
-            );
+            check_box_for_flag(ui, "ブレス", &mut skill.breathes);
+            check_box_for_flag(ui, "ボール", &mut skill.balls);
+            check_box_for_flag(ui, "ボルト", &mut skill.bolts);
         });
     }
 
@@ -289,24 +264,9 @@ impl MonsterRaceDefinitionMakerApp {
         self.update_skill_use_prob(ui);
         ui.horizontal(|ui| {
             let skill = &mut self.monster_race.skill;
-            check_box_list_from_flag_tables(
-                ui,
-                "ダメージ",
-                &mut skill.damages,
-                &monster::MONSTER_SKILL_DAMAGE_TABLES,
-            );
-            check_box_list_from_flag_tables(
-                ui,
-                "召喚",
-                &mut skill.summons,
-                &monster::MONSTER_SKILL_SUMMON_TABLES,
-            );
-            check_box_list_from_flag_tables(
-                ui,
-                "その他",
-                &mut skill.miscs,
-                &monster::MONSTER_SKILL_MISC_TABLES,
-            );
+            check_box_for_flag(ui, "ダメージ", &mut skill.damages);
+            check_box_for_flag(ui, "召喚", &mut skill.summons);
+            check_box_for_flag(ui, "その他", &mut skill.miscs);
         });
     }
 
@@ -323,60 +283,20 @@ impl MonsterRaceDefinitionMakerApp {
     fn update_flags_info1(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             let flags = &mut self.monster_race.flags;
-            check_box_list_from_flag_tables(
-                ui,
-                "耐性",
-                &mut flags.resistance,
-                &monster::MONSTER_RESISTANCE_TABLES,
-            );
+            check_box_for_flag(ui, "耐性", &mut flags.resistance);
             ui.vertical(|ui| {
-                check_box_list_from_flag_tables(
-                    ui,
-                    "オーラ",
-                    &mut flags.aura,
-                    &monster::MONSTER_AURA_TABLES,
-                );
-                check_box_list_from_flag_tables(
-                    ui,
-                    "弱点",
-                    &mut flags.weakness,
-                    &monster::MONSTER_WEAKNESS_TABLES,
-                );
-                check_box_list_from_flag_tables(
-                    ui,
-                    "ドロップ",
-                    &mut flags.drop,
-                    &monster::MONSTER_DROP_TABLES,
-                );
+                check_box_for_flag(ui, "オーラ", &mut flags.aura);
+                check_box_for_flag(ui, "弱点", &mut flags.weakness);
+                check_box_for_flag(ui, "ドロップ", &mut flags.drop);
             });
             ui.vertical(|ui| {
-                check_box_list_from_flag_tables(
-                    ui,
-                    "種族/属性",
-                    &mut flags.kind,
-                    &monster::MONSTER_KIND_TABLES,
-                );
-                check_box_list_from_flag_tables(
-                    ui,
-                    "外見",
-                    &mut flags.visual,
-                    &monster::MONSTER_VISUAL_TABLES,
-                );
+                check_box_for_flag(ui, "種族/属性", &mut flags.kind);
+                check_box_for_flag(ui, "外見", &mut flags.visual);
             });
 
             ui.vertical(|ui| {
-                check_box_list_from_flag_tables(
-                    ui,
-                    "行動",
-                    &mut flags.behavior,
-                    &monster::MONSTER_BEHAVIOR_TABLES,
-                );
-                check_box_list_from_flag_tables(
-                    ui,
-                    "特性",
-                    &mut flags.feature,
-                    &monster::MONSTER_FEATURE_TABLES,
-                );
+                check_box_for_flag(ui, "行動", &mut flags.behavior);
+                check_box_for_flag(ui, "特性", &mut flags.feature);
             });
         });
     }
@@ -385,37 +305,12 @@ impl MonsterRaceDefinitionMakerApp {
         ui.horizontal(|ui| {
             let flags = &mut self.monster_race.flags;
             ui.vertical(|ui| {
-                check_box_list_from_flag_tables(
-                    ui,
-                    "光源",
-                    &mut flags.brightness,
-                    &monster::MONSTER_BRIGHTNESS_TABLES,
-                );
-                check_box_list_from_flag_tables(
-                    ui,
-                    "生成数",
-                    &mut flags.population,
-                    &monster::MONSTER_POPULATION_TABLES,
-                );
-                check_box_list_from_flag_tables(
-                    ui,
-                    "会話",
-                    &mut flags.speak,
-                    &monster::MONSTER_SPEAK_TABLES,
-                );
+                check_box_for_flag(ui, "光源", &mut flags.brightness);
+                check_box_for_flag(ui, "生成数", &mut flags.population);
+                check_box_for_flag(ui, "会話", &mut flags.speak);
             });
-            check_box_list_from_flag_tables(
-                ui,
-                "地上生成",
-                &mut flags.wildness,
-                &monster::MONSTER_WILDNESS_TABLES,
-            );
-            check_box_list_from_flag_tables(
-                ui,
-                "その他",
-                &mut flags.misc,
-                &monster::MONSTER_MISC_TABLES,
-            );
+            check_box_for_flag(ui, "地上生成", &mut flags.wildness);
+            check_box_for_flag(ui, "その他", &mut flags.misc);
         });
     }
 
@@ -702,34 +597,26 @@ impl SearchCtx {
     }
 }
 
-fn combo_box_from_frag_tables<T>(
-    ui: &mut egui::Ui,
-    id_source: &str,
-    selected: &mut T,
-    tables: &[monster::FlagTable<T>],
-) where
+fn combo_box_for_flag<T>(ui: &mut egui::Ui, id_source: &str, selected: &mut T)
+where
     T: MonsterRaceFlag + Copy + Eq,
 {
     egui::ComboBox::from_id_source(id_source)
         .selected_text(selected.description())
         .show_ui(ui, |ui| {
-            for t in tables {
-                ui.selectable_value(selected, t.flag, t.description);
+            for row in T::get_flag_table() {
+                ui.selectable_value(selected, row.flag, row.description);
             }
         });
 }
 
-fn check_box_list_from_flag_tables<T>(
-    ui: &mut egui::Ui,
-    header: &str,
-    flags: &mut BTreeSet<T>,
-    tables: &[monster::FlagTable<T>],
-) where
+fn check_box_for_flag<T>(ui: &mut egui::Ui, header: &str, checked: &mut BTreeSet<T>)
+where
     T: MonsterRaceFlag + Copy + Ord,
 {
-    let mut flag_map = tables
+    let mut flag_map = T::get_flag_table()
         .iter()
-        .map(|t| (t.flag, flags.contains(&t.flag)))
+        .map(|t| (t.flag, checked.contains(&t.flag)))
         .collect::<BTreeMap<_, _>>();
     ui.group(|ui| {
         ui.vertical(|ui| {
@@ -740,16 +627,9 @@ fn check_box_list_from_flag_tables<T>(
             }
         });
     });
-    *flags = flag_map
+    *checked = flag_map
         .iter()
-        .filter_map(
-            |(flag, selected)| {
-                if *selected {
-                    Some(*flag)
-                } else {
-                    None
-                }
-            },
-        )
+        .filter(|(_, selected)| **selected)
+        .map(|(flag, _)| *flag)
         .collect();
 }

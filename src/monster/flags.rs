@@ -44,13 +44,13 @@ pub use visual::*;
 pub use weakness::*;
 pub use wildness::*;
 
-pub struct FlagTable<T> {
+pub struct FlagTableRow<T> {
     pub flag: T,
     pub token: &'static str,
     pub description: &'static str,
 }
 
-impl<T> FlagTable<T> {
+impl<T> FlagTableRow<T> {
     const fn new(flag: T, token: &'static str, description: &'static str) -> Self {
         Self {
             flag,
@@ -60,30 +60,22 @@ impl<T> FlagTable<T> {
     }
 }
 
-pub trait MonsterRaceFlag {
-    fn get_flag_tables(&self) -> &[FlagTable<Self>]
-    where
-        Self: Sized;
+pub trait MonsterRaceFlag: Sized + Eq + 'static {
+    fn get_flag_table() -> &'static [FlagTableRow<Self>];
 
-    fn token(&self) -> &str
-    where
-        Self: Sized + Eq,
-    {
-        self.get_flag_tables()
+    fn token(&self) -> &'static str {
+        Self::get_flag_table()
             .iter()
             .find(|ft| ft.flag == *self)
             .map(|ft| ft.token)
-            .unwrap_or("(undefined)")
+            .unwrap_or("(undefined token)")
     }
 
-    fn description(&self) -> &str
-    where
-        Self: Sized + Eq,
-    {
-        self.get_flag_tables()
+    fn description(&self) -> &'static str {
+        Self::get_flag_table()
             .iter()
             .find(|ft| ft.flag == *self)
             .map(|ft| ft.description)
-            .unwrap_or("(undefined)")
+            .unwrap_or("(undefined description)")
     }
 }
