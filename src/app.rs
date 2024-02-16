@@ -19,6 +19,9 @@ pub struct MonsterRaceDefinitionMakerApp {
 
     #[serde(skip)]
     search_ctx: SearchCtx,
+
+    #[serde(skip)]
+    toasts: egui_notify::Toasts,
 }
 
 struct SearchCtx {
@@ -34,6 +37,7 @@ impl Default for MonsterRaceDefinitionMakerApp {
             monster_race: monster::MonsterRace::new(),
             selected_side_panel_item: SidePanelItem::MonsterRaceBasicInfo,
             search_ctx: SearchCtx::new(),
+            toasts: Default::default(),
         }
     }
 }
@@ -424,15 +428,20 @@ impl MonsterRaceDefinitionMakerApp {
     }
 
     fn update_export(&mut self, ui: &mut egui::Ui) {
-        let mut monster_race_definition = self.monster_race.to_monster_race_definition();
+        let monster_race_definition = self.monster_race.to_monster_race_definition();
 
         if ui.button("クリップボードにコピー").clicked() {
             ui.output_mut(|o| o.copied_text = monster_race_definition.clone());
+            self.toasts.success("コピーしました");
         }
 
-        egui::TextEdit::multiline(&mut monster_race_definition)
-            .desired_width(f32::INFINITY)
-            .show(ui);
+        ui.group(|ui| {
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                egui::TextEdit::multiline(&mut monster_race_definition.trim_end())
+                    .desired_width(f32::INFINITY)
+                    .show(ui);
+            });
+        });
     }
 }
 
@@ -503,6 +512,8 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             MonsterSearch => self.search_ctx.update(ui),
             Export => self.update_export(ui),
         });
+
+        self.toasts.show(ctx);
     }
 }
 
