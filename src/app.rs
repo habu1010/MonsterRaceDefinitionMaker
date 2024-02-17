@@ -34,6 +34,7 @@ struct SearchCtx {
     results: Vec<Rc<search::MonsterRace>>,
     query: String,
     monster_id: u32,
+    monster: Option<Rc<search::MonsterRace>>,
 }
 
 impl Default for MonsterRaceDefinitionMakerApp {
@@ -559,7 +560,9 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             MonsterRaceEscorts => self.update_escorts(ui),
             MonsterRaceArtifactDrop => self.update_artifact_drops(ui),
             MonsterRaceFlavor => self.update_flavor(ui),
-            MonsterSearch => self.search_ctx.update(ui),
+            MonsterSearch => self
+                .search_ctx
+                .update(ui, &mut self.monster_race, &mut self.toasts),
             Import => self.update_import(ui),
             Export => self.update_export(ui),
         });
@@ -575,15 +578,22 @@ impl SearchCtx {
             results: Vec::new(),
             query: String::new(),
             monster_id: 0,
+            monster: None,
         }
     }
 
-    fn update(&mut self, ui: &mut egui::Ui) {
+    fn update(
+        &mut self,
+        ui: &mut egui::Ui,
+        monster_race: &mut monster::MonsterRace,
+        toasts: &mut egui_notify::Toasts,
+    ) {
         let Self {
             db,
             results,
             query,
             monster_id,
+            monster,
         } = self;
 
         ui.heading("モンスター検索");
@@ -637,24 +647,41 @@ impl SearchCtx {
         ui.horizontal(|ui| {
             ui.label("ID入力:");
             ui.add(egui::DragValue::new(monster_id).clamp_range(db.id_range()));
+            if let Some(monster) = monster {
+                if ui.button("インポート").clicked() {
+                    match monster.definition.parse() {
+                        Ok(m) => {
+                            *monster_race = m;
+                            toasts.success("インポートしました");
+                        }
+                        Err(_) => {
+                            toasts.error("インポートに失敗しました");
+                        }
+                    }
+                }
+            }
         });
 
-        let monster = db.get(*monster_id);
-
-        let mut definition = match monster {
-            Ok(ref monster) => monster.definition.as_str().trim_end(),
-            Err(search::SearchError::Preparing) => "データの準備中です",
-            Err(search::SearchError::IdNotFound) => "該当のモンスターIDが見つかりません",
-            Err(search::SearchError::FailedToDownload) => "データのダウンロードに失敗しました",
+        let mut definition = match db.get(*monster_id) {
+            Ok(m) => {
+                *monster = Some(m);
+                monster.as_ref().unwrap().definition.as_str().trim_end()
+            }
+            Err(err) => {
+                *monster = None;
+                match err {
+                    search::SearchError::Preparing => "データの準備中です",
+                    search::SearchError::IdNotFound => "該当のモンスターIDが見つかりません",
+                    search::SearchError::FailedToDownload => "データのダウンロードに失敗しました",
+                }
+            }
         };
         ui.group(|ui| {
-            egui::ScrollArea::vertical()
-                .auto_shrink(false)
-                .show(ui, |ui| {
-                    egui::TextEdit::multiline(&mut definition)
-                        .desired_width(f32::INFINITY)
-                        .show(ui);
-                });
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                egui::TextEdit::multiline(&mut definition)
+                    .desired_width(f32::INFINITY)
+                    .show(ui);
+            });
         });
     }
 }
