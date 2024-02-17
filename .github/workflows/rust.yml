@@ -51,6 +51,7 @@ jobs:
           toolchain: stable
           override: true
       - run: sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libssl-dev
+      - run: curl -O https://raw.githubusercontent.com/hengband/hengband/develop/lib/edit/MonsterRaceDefinitions.txt
       - uses: actions-rs/cargo@v1
         with:
           command: test
