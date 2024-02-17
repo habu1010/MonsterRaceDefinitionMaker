@@ -60,7 +60,7 @@ impl<T> FlagTableRow<T> {
     }
 }
 
-pub trait MonsterRaceFlag: Sized + Eq + 'static {
+pub trait MonsterRaceFlag: Sized + Copy + Eq + 'static {
     fn get_flag_table() -> &'static [FlagTableRow<Self>];
 
     fn token(&self) -> &'static str {
@@ -77,5 +77,113 @@ pub trait MonsterRaceFlag: Sized + Eq + 'static {
             .find(|ft| ft.flag == *self)
             .map(|ft| ft.description)
             .unwrap_or("(undefined description)")
+    }
+
+    fn from_token(token: &str) -> Result<Self, String> {
+        Self::get_flag_table()
+            .iter()
+            .find(|ft| ft.token == token)
+            .map(|ft| ft.flag)
+            .ok_or_else(|| format!("Unknown token: {}", token))
+    }
+}
+
+pub enum MonsterSkillGroup {
+    Breath(MonsterSkillBreath),
+    Ball(MonsterSkillBall),
+    Bolt(MonsterSkillBolt),
+    Damage(MonsterSkillDamage),
+    Misc(MonsterSkillMisc),
+    Summon(MonsterSkillSummon),
+}
+
+impl std::str::FromStr for MonsterSkillGroup {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Ok(breath) = MonsterSkillBreath::from_token(s) {
+            return Ok(Self::Breath(breath));
+        }
+        if let Ok(ball) = MonsterSkillBall::from_token(s) {
+            return Ok(Self::Ball(ball));
+        }
+        if let Ok(bolt) = MonsterSkillBolt::from_token(s) {
+            return Ok(Self::Bolt(bolt));
+        }
+        if let Ok(damage) = MonsterSkillDamage::from_token(s) {
+            return Ok(Self::Damage(damage));
+        }
+        if let Ok(misc) = MonsterSkillMisc::from_token(s) {
+            return Ok(Self::Misc(misc));
+        }
+        if let Ok(summon) = MonsterSkillSummon::from_token(s) {
+            return Ok(Self::Summon(summon));
+        }
+
+        Err(format!("Unknown skill token: {}", s))
+    }
+}
+
+pub enum MonsterFlagGroup {
+    Aura(MonsterAura),
+    Behavior(MonsterBehavior),
+    Brightness(MonsterBrightness),
+    Drop(MonsterDrop),
+    Feature(MonsterFeature),
+    Kind(MonsterKind),
+    Misc(MonsterMisc),
+    Population(MonsterPopulation),
+    Resistance(MonsterResistance),
+    Speak(MonsterSpeak),
+    Visual(MonsterVisual),
+    Weakness(MonsterWeakness),
+    Wildness(MonsterWildness),
+}
+
+impl std::str::FromStr for MonsterFlagGroup {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Ok(aura) = MonsterAura::from_token(s) {
+            return Ok(Self::Aura(aura));
+        }
+        if let Ok(behavior) = MonsterBehavior::from_token(s) {
+            return Ok(Self::Behavior(behavior));
+        }
+        if let Ok(brightness) = MonsterBrightness::from_token(s) {
+            return Ok(Self::Brightness(brightness));
+        }
+        if let Ok(drop) = MonsterDrop::from_token(s) {
+            return Ok(Self::Drop(drop));
+        }
+        if let Ok(feature) = MonsterFeature::from_token(s) {
+            return Ok(Self::Feature(feature));
+        }
+        if let Ok(kind) = MonsterKind::from_token(s) {
+            return Ok(Self::Kind(kind));
+        }
+        if let Ok(misc) = MonsterMisc::from_token(s) {
+            return Ok(Self::Misc(misc));
+        }
+        if let Ok(population) = MonsterPopulation::from_token(s) {
+            return Ok(Self::Population(population));
+        }
+        if let Ok(resistance) = MonsterResistance::from_token(s) {
+            return Ok(Self::Resistance(resistance));
+        }
+        if let Ok(speak) = MonsterSpeak::from_token(s) {
+            return Ok(Self::Speak(speak));
+        }
+        if let Ok(visual) = MonsterVisual::from_token(s) {
+            return Ok(Self::Visual(visual));
+        }
+        if let Ok(weakness) = MonsterWeakness::from_token(s) {
+            return Ok(Self::Weakness(weakness));
+        }
+        if let Ok(wildness) = MonsterWildness::from_token(s) {
+            return Ok(Self::Wildness(wildness));
+        }
+
+        Err(format!("Unknown flag token: {}", s))
     }
 }

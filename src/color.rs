@@ -25,7 +25,7 @@ pub enum Color {
     LightBrown,
 }
 
-pub struct ColorSymbol(char);
+pub struct ColorSymbol(pub char);
 
 use Color::*;
 
@@ -84,6 +84,33 @@ impl From<Color> for ColorSymbol {
             LightBrown => 'U',
         };
         ColorSymbol(symbol)
+    }
+}
+
+impl TryFrom<ColorSymbol> for Color {
+    type Error = String;
+
+    fn try_from(symbol: ColorSymbol) -> Result<Self, Self::Error> {
+        let color = match symbol.0 {
+            'D' => Black,
+            'w' => White,
+            's' => Gray,
+            'o' => Orange,
+            'r' => Red,
+            'g' => Green,
+            'b' => Blue,
+            'u' => Brown,
+            'd' => DarkGray,
+            'W' => LightGray,
+            'v' => Violet,
+            'y' => Yellow,
+            'R' => LightRed,
+            'G' => LightGreen,
+            'B' => LightBlue,
+            'U' => LightBrown,
+            _ => return Err(format!("Invalid color symbol: {}", symbol.0)),
+        };
+        Ok(color)
     }
 }
 

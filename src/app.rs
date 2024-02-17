@@ -18,6 +18,11 @@ pub struct MonsterRaceDefinitionMakerApp {
     monster_race: monster::MonsterRace,
 
     #[serde(skip)]
+    import_text: String,
+    #[serde(skip)]
+    import_result: String,
+
+    #[serde(skip)]
     search_ctx: SearchCtx,
 
     #[serde(skip)]
@@ -36,6 +41,8 @@ impl Default for MonsterRaceDefinitionMakerApp {
         Self {
             monster_race: monster::MonsterRace::new(),
             selected_side_panel_item: SidePanelItem::MonsterRaceBasicInfo,
+            import_text: String::new(),
+            import_result: String::new(),
             search_ctx: SearchCtx::new(),
             toasts: Default::default(),
         }
@@ -54,6 +61,7 @@ enum SidePanelItem {
     MonsterRaceArtifactDrop,
     MonsterRaceFlavor,
     MonsterSearch,
+    Import,
     Export,
 }
 
@@ -443,6 +451,31 @@ impl MonsterRaceDefinitionMakerApp {
             });
     }
 
+    fn update_import(&mut self, ui: &mut egui::Ui) {
+        if ui.button("インポート").clicked() {
+            match self.import_text.parse() {
+                Ok(monster_race) => {
+                    self.monster_race = monster_race;
+                    self.import_result.clear();
+                    self.toasts.success("インポートしました");
+                }
+                Err(e) => {
+                    self.import_result = e;
+                    self.toasts.error("インポートに失敗しました");
+                }
+            }
+        }
+        ui.group(|ui| {
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                egui::TextEdit::multiline(&mut self.import_text)
+                    .hint_text("定義テキストを貼り付け")
+                    .desired_width(f32::INFINITY)
+                    .show(ui);
+            });
+        });
+        ui.label(&self.import_result);
+    }
+
     fn update_export(&mut self, ui: &mut egui::Ui) {
         let monster_race_definition = self.monster_race.to_monster_race_definition();
 
@@ -506,6 +539,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             ui.selectable_value(side_panel, MonsterRaceArtifactDrop, "固定AFドロップ");
             ui.selectable_value(side_panel, MonsterRaceFlavor, "フレーバーテキスト");
             ui.selectable_value(side_panel, MonsterSearch, "モンスター検索");
+            ui.selectable_value(side_panel, Import, "インポート");
             ui.selectable_value(side_panel, Export, "エクスポート");
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
@@ -526,6 +560,7 @@ impl eframe::App for MonsterRaceDefinitionMakerApp {
             MonsterRaceArtifactDrop => self.update_artifact_drops(ui),
             MonsterRaceFlavor => self.update_flavor(ui),
             MonsterSearch => self.search_ctx.update(ui),
+            Import => self.update_import(ui),
             Export => self.update_export(ui),
         });
 

@@ -29,3 +29,20 @@ impl std::fmt::Display for HitDice {
         write!(f, "{}d{}", self.num, self.sides)
     }
 }
+
+impl std::str::FromStr for HitDice {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let err_msg = || format!("Invalid hit dice: {}", s);
+        let parts = s.split('d').collect::<Vec<_>>();
+        if parts.len() != 2 {
+            return Err(err_msg());
+        }
+
+        let num = parts[0].parse().map_err(|_| err_msg())?;
+        let sides = parts[1].parse().map_err(|_| err_msg())?;
+
+        Ok(Self::new(num, sides))
+    }
+}
