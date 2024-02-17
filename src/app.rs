@@ -161,15 +161,23 @@ impl MonsterRaceDefinitionMakerApp {
                     }
                     ui.end_row();
 
-                    let mut drag_value_form = |label, value, range| {
+                    let mut drag_value_form = |label, value, range, unit| {
                         ui.label(label);
-                        ui.add(egui::DragValue::new(value).clamp_range(range));
+                        ui.horizontal(|ui| {
+                            ui.add(egui::DragValue::new(value).clamp_range(range));
+                            ui.label(unit);
+                        });
                         ui.end_row();
                     };
-                    drag_value_form("加速:", &mut self.monster_race.speed, -100..=100);
-                    drag_value_form("AC:", &mut self.monster_race.ac, 0..=10000);
-                    drag_value_form("感知範囲:", &mut self.monster_race.vision, 1..=255);
-                    drag_value_form("警戒度:", &mut self.monster_race.alertness, 0..=255);
+                    drag_value_form("加速:", &mut self.monster_race.speed, -100..=100, "");
+                    drag_value_form("AC:", &mut self.monster_race.ac, 0..=10000, "");
+                    drag_value_form(
+                        "感知範囲:",
+                        &mut self.monster_race.vision,
+                        1..=255,
+                        "x10フィート",
+                    );
+                    drag_value_form("警戒度:", &mut self.monster_race.alertness, 0..=255, "");
                 });
         });
     }
@@ -214,7 +222,7 @@ impl MonsterRaceDefinitionMakerApp {
     fn draw_arena_info_field(&mut self, ui: &mut egui::Ui) {
         ui.group(|ui| {
             let ratio = &mut self.monster_race.odds_correction_ratio;
-            ui.label("闘技場倍率補正");
+            ui.label("闘技場補正");
             ui.horizontal(|ui| {
                 ui.add(egui::DragValue::new(ratio).clamp_range(1..=999));
                 ui.label("%");
@@ -250,6 +258,15 @@ impl MonsterRaceDefinitionMakerApp {
                 self.draw_arena_info_field(ui);
             });
         });
+
+        ui.separator();
+        egui::TextEdit::multiline(
+            &mut "感知範囲…1マスあたり10フィート。
+警戒度…低いほど起きやすい。0で常に起きている。
+闘技場補正…強さの評価への補正率。大きいほどオッズが低くなる。",
+        )
+        .desired_width(f32::INFINITY)
+        .show(ui);
     }
 
     fn update_blows_info(&mut self, ui: &mut egui::Ui) {
