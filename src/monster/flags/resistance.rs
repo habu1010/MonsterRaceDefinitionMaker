@@ -21,6 +21,8 @@ pub enum MonsterResistance {
     Inertia,
     Time,
     Gravity,
+    Abyss,
+    Void,
     Meteor,
     Teleport,
     Fear,
@@ -33,7 +35,7 @@ pub enum MonsterResistance {
 
 use MonsterResistance::*;
 
-const MONSTER_RESISTANCE_TABLE: [FlagTableRow<MonsterResistance>; 27] = [
+const MONSTER_RESISTANCE_TABLE: [FlagTableRow<MonsterResistance>; 29] = [
     FlagTableRow::new(Acid, "IM_ACID", "酸"),
     FlagTableRow::new(Elec, "IM_ELEC", "稲妻"),
     FlagTableRow::new(Fire, "IM_FIRE", "炎"),
@@ -53,12 +55,14 @@ const MONSTER_RESISTANCE_TABLE: [FlagTableRow<MonsterResistance>; 27] = [
     FlagTableRow::new(Inertia, "RES_INER", "遅鈍"),
     FlagTableRow::new(Time, "RES_TIME", "時間逆転"),
     FlagTableRow::new(Gravity, "RES_GRAV", "重力"),
+    FlagTableRow::new(Abyss, "RES_ABYSS", "深淵"),
+    FlagTableRow::new(Void, "RES_VOID", "虚無"),
     FlagTableRow::new(Meteor, "RES_METEOR", "隕石"),
     FlagTableRow::new(Teleport, "RES_TELE", "テレポート"),
-    FlagTableRow::new(Fear, "RES_FEAR", "恐怖"),
-    FlagTableRow::new(Stun, "RES_STUN", "朦朧"),
-    FlagTableRow::new(Confusion, "RES_CONF", "混乱"),
-    FlagTableRow::new(Sleep, "RES_SLEEP", "睡眠"),
+    FlagTableRow::new(Fear, "NO_FEAR", "恐怖"),
+    FlagTableRow::new(Stun, "NO_STUN", "朦朧"),
+    FlagTableRow::new(Confusion, "NO_CONF", "混乱"),
+    FlagTableRow::new(Sleep, "NO_SLEEP", "睡眠"),
     FlagTableRow::new(InstantlyDeath, "NO_INSTANTLY_DEATH", "即死"),
     FlagTableRow::new(All, "RES_ALL", "あらゆる攻撃"),
 ];

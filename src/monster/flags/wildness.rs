@@ -11,12 +11,13 @@ pub enum MonsterWildness {
     Volcano,
     Mountain,
     Grass,
+    Swamp,
     All,
 }
 
 use MonsterWildness::*;
 
-const MONSTER_WILDNESS_TABLE: [FlagTableRow<MonsterWildness>; 10] = [
+const MONSTER_WILDNESS_TABLE: [FlagTableRow<MonsterWildness>; 11] = [
     FlagTableRow::new(WildOnly, "WILD_ONLY", "地上のみ"),
     FlagTableRow::new(Town, "WILD_TOWN", "街"),
     FlagTableRow::new(Shore, "WILD_SHORE", "浅瀬"),
@@ -26,6 +27,7 @@ const MONSTER_WILDNESS_TABLE: [FlagTableRow<MonsterWildness>; 10] = [
     FlagTableRow::new(Volcano, "WILD_VOLCANO", "火山"),
     FlagTableRow::new(Mountain, "WILD_MOUNTAIN", "山"),
     FlagTableRow::new(Grass, "WILD_GRASS", "草原"),
+    FlagTableRow::new(Grass, "WILD_SWAMP", "沼地"),
     FlagTableRow::new(All, "WILD_ALL", "全て"),
 ];
 

@@ -4,6 +4,7 @@ use super::*;
 pub enum MonsterMisc {
     ForceDepth,
     ForceMaxHp,
+    PerHp50,
     HasFriends,
     Escort,
     MoreEscort,
@@ -26,12 +27,13 @@ pub enum MonsterMisc {
 
 use MonsterMisc::*;
 
-const MONSTER_MISC_TABLE: [FlagTableRow<MonsterMisc>; 20] = [
+const MONSTER_MISC_TABLE: [FlagTableRow<MonsterMisc>; 21] = [
     FlagTableRow::new(ForceDepth, "FORCE_DEPTH", "階層固定"),
     FlagTableRow::new(ForceMaxHp, "FORCE_MAXHP", "最大HP固定"),
-    FlagTableRow::new(HasFriends, "HAS_FRIENDS", "集団で現れる"),
+    FlagTableRow::new(PerHp50, "PERHP_50", "HPが50%で出現"), // 数値は可変だが現状50%でしか使われていない
+    FlagTableRow::new(HasFriends, "FRIENDS", "集団で現れる"),
     FlagTableRow::new(Escort, "ESCORT", "護衛を伴って現れる"),
-    FlagTableRow::new(MoreEscort, "MORE_ESCORT", "多くの護衛を伴って現れる"),
+    FlagTableRow::new(MoreEscort, "ESCORTS", "多くの護衛を伴って現れる"),
     FlagTableRow::new(Riding, "RIDING", "騎乗できる"),
     FlagTableRow::new(Invisible, "INVISIBLE", "透明で目に見えない"),
     FlagTableRow::new(ColdBlood, "COLD_BLOOD", "冷血動物"),
@@ -46,7 +48,7 @@ const MONSTER_MISC_TABLE: [FlagTableRow<MonsterMisc>; 20] = [
     FlagTableRow::new(Reflecting, "REFLECTING", "矢の呪文を跳ね返す"),
     FlagTableRow::new(Questor, "QUESTOR", "クエスト専用モンスター"),
     FlagTableRow::new(EmptyMind, "EMPTY_MIND", "テレパシーで感知できない"),
-    FlagTableRow::new(WiredMind, "WIRED_MIND", "まれにテレパシーで感知できる"),
+    FlagTableRow::new(WiredMind, "WEIRD_MIND", "まれにテレパシーで感知できる"),
 ];
 
 impl MonsterRaceFlag for MonsterMisc {

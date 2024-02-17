@@ -19,8 +19,8 @@ pub enum MonsterDrop {
 use MonsterDrop::*;
 
 const MONSTER_DROP_TABLE: [FlagTableRow<MonsterDrop>; 12] = [
-    FlagTableRow::new(OnlyGold, "DROP_GOLD", "金のみ"),
-    FlagTableRow::new(OnlyItem, "DROP_ITEM", "アイテムのみ"),
+    FlagTableRow::new(OnlyGold, "ONLY_GOLD", "金のみ"),
+    FlagTableRow::new(OnlyItem, "ONLY_ITEM", "アイテムのみ"),
     FlagTableRow::new(Good, "DROP_GOOD", "上質なアイテム"),
     FlagTableRow::new(Great, "DROP_GREAT", "特別なアイテム"),
     FlagTableRow::new(Corpse, "DROP_CORPSE", "死体を残す"),
