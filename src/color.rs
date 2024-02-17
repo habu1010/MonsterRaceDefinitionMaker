@@ -66,7 +66,7 @@ impl fmt::Display for ColorSymbol {
 impl From<Color> for ColorSymbol {
     fn from(color: Color) -> Self {
         let symbol = match color {
-            Black => 'D',
+            Black => 'd',
             White => 'w',
             Gray => 's',
             Orange => 'o',
@@ -74,7 +74,7 @@ impl From<Color> for ColorSymbol {
             Green => 'g',
             Blue => 'b',
             Brown => 'u',
-            DarkGray => 'd',
+            DarkGray => 'D',
             LightGray => 'W',
             Violet => 'v',
             Yellow => 'y',
@@ -92,7 +92,7 @@ impl TryFrom<ColorSymbol> for Color {
 
     fn try_from(symbol: ColorSymbol) -> Result<Self, Self::Error> {
         let color = match symbol.0 {
-            'D' => Black,
+            'd' => Black,
             'w' => White,
             's' => Gray,
             'o' => Orange,
@@ -100,7 +100,7 @@ impl TryFrom<ColorSymbol> for Color {
             'g' => Green,
             'b' => Blue,
             'u' => Brown,
-            'd' => DarkGray,
+            'D' => DarkGray,
             'W' => LightGray,
             'v' => Violet,
             'y' => Yellow,
