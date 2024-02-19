@@ -1,8 +1,8 @@
 mod aura;
 mod behavior;
+mod blow_effect;
+mod blow_method;
 mod brightness;
-mod brow_effect;
-mod brow_method;
 mod drop;
 mod feature;
 mod kind;
@@ -23,9 +23,9 @@ mod wildness;
 
 pub use aura::*;
 pub use behavior::*;
+pub use blow_effect::*;
+pub use blow_method::*;
 pub use brightness::*;
-pub use brow_effect::*;
-pub use brow_method::*;
 pub use drop::*;
 pub use feature::*;
 pub use kind::*;

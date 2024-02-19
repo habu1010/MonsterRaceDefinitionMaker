@@ -53,8 +53,8 @@ pub struct MonsterSymbol {
 
 #[derive(Default, serde::Deserialize, serde::Serialize)]
 pub struct MonsterBlow {
-    pub method: MonsterBrowMethod,
-    pub effect: MonsterBrowEffect,
+    pub method: MonsterBlowMethod,
+    pub effect: MonsterBlowEffect,
     pub has_damage: bool,
     pub damage_dice: HitDice,
 }
@@ -278,8 +278,8 @@ impl MonsterRace {
         }
 
         let blow = MonsterBlow {
-            method: MonsterBrowMethod::from_token(cols[1])?,
-            effect: MonsterBrowEffect::from_token(cols[2])?,
+            method: MonsterBlowMethod::from_token(cols[1])?,
+            effect: MonsterBlowEffect::from_token(cols[2])?,
             has_damage: cols.len() > 3,
             damage_dice: match cols.get(3) {
                 Some(dice) => dice.parse()?,
@@ -288,7 +288,7 @@ impl MonsterRace {
         };
 
         for i in 0..4 {
-            if self.blows[i].method == MonsterBrowMethod::None {
+            if self.blows[i].method == MonsterBlowMethod::None {
                 self.blows[i] = blow;
                 return Ok(());
             }
@@ -472,7 +472,7 @@ impl MonsterRace {
 }
 
 fn write_blow_lines<W: Write>(writer: &mut W, blow: &MonsterBlow) {
-    if blow.method == MonsterBrowMethod::None {
+    if blow.method == MonsterBlowMethod::None {
         return;
     }
 

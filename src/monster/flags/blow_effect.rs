@@ -3,7 +3,7 @@ use super::*;
 #[derive(
     Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Deserialize, serde::Serialize,
 )]
-pub enum MonsterBrowEffect {
+pub enum MonsterBlowEffect {
     #[default]
     None,
     Hurt,
@@ -46,9 +46,9 @@ pub enum MonsterBrowEffect {
     Flavor,
 }
 
-use MonsterBrowEffect::*;
+use MonsterBlowEffect::*;
 
-const MONSTER_BLOW_EFFECT_TABLE: [FlagTableRow<MonsterBrowEffect>; 39] = [
+const MONSTER_BLOW_EFFECT_TABLE: [FlagTableRow<MonsterBlowEffect>; 39] = [
     FlagTableRow::new(None, "FLAVOR", "(なし)"), // FLAVORと同じ扱いにする
     FlagTableRow::new(Hurt, "HURT", "攻撃する"),
     FlagTableRow::new(SuperHurt, "SUPERHURT", "強力に攻撃する"),
@@ -90,7 +90,7 @@ const MONSTER_BLOW_EFFECT_TABLE: [FlagTableRow<MonsterBrowEffect>; 39] = [
     FlagTableRow::new(Flavor, "FLAVOR", "フレーバー攻撃"),
 ];
 
-impl MonsterRaceFlag for MonsterBrowEffect {
+impl MonsterRaceFlag for MonsterBlowEffect {
     fn get_flag_table() -> &'static [FlagTableRow<Self>] {
         &MONSTER_BLOW_EFFECT_TABLE
     }

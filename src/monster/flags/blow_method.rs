@@ -3,7 +3,7 @@ use super::*;
 #[derive(
     Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Deserialize, serde::Serialize,
 )]
-pub enum MonsterBrowMethod {
+pub enum MonsterBlowMethod {
     #[default]
     None,
     Hit,
@@ -32,9 +32,9 @@ pub enum MonsterBrowMethod {
     Shoot,
 }
 
-use MonsterBrowMethod::*;
+use MonsterBlowMethod::*;
 
-const MONSTER_BLOW_METHOD_TABLE: [FlagTableRow<MonsterBrowMethod>; 25] = [
+const MONSTER_BLOW_METHOD_TABLE: [FlagTableRow<MonsterBlowMethod>; 25] = [
     FlagTableRow::new(None, "", "(なし)"),
     FlagTableRow::new(Hit, "HIT", "殴る"),
     FlagTableRow::new(Touch, "TOUCH", "触れる"),
@@ -62,7 +62,7 @@ const MONSTER_BLOW_METHOD_TABLE: [FlagTableRow<MonsterBrowMethod>; 25] = [
     FlagTableRow::new(Shoot, "SHOOT", "射撃する"),
 ];
 
-impl MonsterRaceFlag for MonsterBrowMethod {
+impl MonsterRaceFlag for MonsterBlowMethod {
     fn get_flag_table() -> &'static [FlagTableRow<Self>] {
         &MONSTER_BLOW_METHOD_TABLE
     }
