@@ -1,3 +1,5 @@
+mod display_monster_symbol;
+
 use std::{
     collections::{BTreeMap, BTreeSet},
     rc::Rc,
@@ -16,6 +18,9 @@ pub struct MonsterRaceDefinitionMakerApp {
     selected_side_panel_item: SidePanelItem,
 
     monster_race: monster::MonsterRace,
+
+    #[serde(skip)]
+    display_monster_symbol: display_monster_symbol::DisplayMonsterSymbol,
 
     #[serde(skip)]
     import_text: String,
@@ -42,6 +47,7 @@ impl Default for MonsterRaceDefinitionMakerApp {
         Self {
             monster_race: monster::MonsterRace::new(),
             selected_side_panel_item: SidePanelItem::MonsterRaceBasicInfo,
+            display_monster_symbol: Default::default(),
             import_text: String::new(),
             import_result: String::new(),
             search_ctx: SearchCtx::new(),
@@ -120,14 +126,8 @@ impl MonsterRaceDefinitionMakerApp {
                             }
                         });
                     ui.end_row();
-                    ui.label("見た目:");
-                    ui.label(
-                        egui::RichText::new(&symbol.char)
-                            .monospace()
-                            .size(24.0)
-                            .background_color(egui::Color32::BLACK)
-                            .color(symbol.color),
-                    );
+                    ui.label("外見:");
+                    self.display_monster_symbol.show(ui, &self.monster_race);
                 });
         });
     }

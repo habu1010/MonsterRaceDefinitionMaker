@@ -45,7 +45,7 @@ pub struct MonsterRace {
     pub english_flavor: String,
 }
 
-#[derive(Default, serde::Deserialize, serde::Serialize)]
+#[derive(Default, Clone, serde::Deserialize, serde::Serialize)]
 pub struct MonsterSymbol {
     pub char: String,
     pub color: color::Color,

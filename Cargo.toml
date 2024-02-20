@@ -17,6 +17,9 @@ serde = { version = "1", features = ["derive"] }
 ehttp = "0"
 thiserror = "1"
 egui-notify = "0"
+rand = "0"
+getrandom = { version = "0", features = ["js"] }
+instant = { version = "0", features = ["wasm-bindgen", "inaccurate"] }
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
